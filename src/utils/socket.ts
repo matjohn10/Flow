@@ -23,10 +23,6 @@ export function SetSocket() {
   socket.on("room", (status: string) => {
     console.log("Joined Room:", status);
   });
-  // listens to get room-id after creation
-  socket.on("room-id", (roomId: string) => {
-    console.log("Created Room:", roomId);
-  });
 
   socket.on("error", () => {
     console.log("ERROR Connecting");
