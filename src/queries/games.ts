@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 type Game = {
   players: string[];
+  creator: string;
   gameId?: string | null | undefined;
 };
 export type Player = {

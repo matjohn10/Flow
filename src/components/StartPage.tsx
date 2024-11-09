@@ -73,93 +73,66 @@ function StartPage() {
         <div className="flex flex-wrap w-full h-full">
           <div
             onClick={() => setIcon("lion")}
-            className={
-              icon === "lion"
-                ? "flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20 bg-gray-50"
-                : baseStyle
-            }
+            style={{ backgroundColor: icon === "lion" ? color : "#242424" }}
+            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
           >
             <img src="/avatars/lion.png" className="w-full h-full" />
           </div>
           <div
             onClick={() => setIcon("cat")}
-            className={
-              icon === "cat"
-                ? "flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20 bg-gray-50"
-                : baseStyle
-            }
+            style={{ backgroundColor: icon === "cat" ? color : "#242424" }}
+            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
           >
             <img src="/avatars/cat.png" />
           </div>
 
           <div
             onClick={() => setIcon("fox")}
-            className={
-              icon === "fox"
-                ? "flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20 bg-gray-50"
-                : baseStyle
-            }
+            style={{ backgroundColor: icon === "fox" ? color : "#242424" }}
+            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
           >
             <img src="/avatars/fox.png" />
           </div>
           <div
             onClick={() => setIcon("unicorn")}
-            className={
-              icon === "unicorn"
-                ? "flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20 bg-gray-50"
-                : baseStyle
-            }
+            style={{ backgroundColor: icon === "unicorn" ? color : "#242424" }}
+            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
           >
             <img src="/avatars/unicorn.png" className="w-full h-full" />
           </div>
           <div
             onClick={() => setIcon("bunny")}
-            className={
-              icon === "bunny"
-                ? "flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20 bg-gray-50"
-                : baseStyle
-            }
+            style={{ backgroundColor: icon === "bunny" ? color : "#242424" }}
+            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
           >
             <img src="/avatars/bunny.png" className="w-full h-full" />
           </div>
           <div
             onClick={() => setIcon("horse")}
-            className={
-              icon === "horse"
-                ? "flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20 bg-gray-50"
-                : baseStyle
-            }
+            style={{ backgroundColor: icon === "horse" ? color : "#242424" }}
+            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
           >
             <img src="/avatars/horse.png" className="w-full h-full" />
           </div>
           <div
             onClick={() => setIcon("tiger")}
-            className={
-              icon === "tiger"
-                ? "flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20 bg-gray-50"
-                : baseStyle
-            }
+            style={{ backgroundColor: icon === "tiger" ? color : "#242424" }}
+            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
           >
             <img src="/avatars/tiger.png" />
           </div>
           <div
             onClick={() => setIcon("bear")}
-            className={
-              icon === "bear"
-                ? "flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20 bg-gray-50"
-                : baseStyle
-            }
+            style={{ backgroundColor: icon === "bear" ? color : "#242424" }}
+            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
           >
             <img src="/avatars/bear.png" />
           </div>
 
           <div
             onClick={() => setIcon("elephant")}
-            className={
-              icon === "elephant"
-                ? "flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20 bg-gray-50"
-                : baseStyle
-            }
+            style={{ backgroundColor: icon === "elephant" ? color : "#242424" }}
+            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
           >
             <img src="/avatars/elephant.png" className="w-full h-full" />
           </div>
