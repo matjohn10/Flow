@@ -5,8 +5,9 @@ import App from "./App.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import StartPage from "./components/StartPage.tsx";
 import { SetSocket } from "./utils/socket.ts";
-import GamePage from "./components/GamePage.tsx";
+import WaitPage from "./components/WaitPage.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import GamePage from "./components/GamePage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
   },
   {
     path: "/game-time/:roomId/wait",
+    element: <WaitPage />,
+  },
+  {
+    path: "/game-time/:roomId/play",
     element: <GamePage />,
   },
 ]);
