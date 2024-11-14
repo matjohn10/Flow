@@ -6,6 +6,8 @@ export type DrawMove = {
   strokeWidth: number;
 };
 
+export type DrawStep = DrawMove[];
+
 export type WindowSize = {
   width: number;
   heigth: number;

@@ -11,8 +11,8 @@ import {
 } from "lucide-react";
 
 interface props {
-  undo(): void;
-  redo(): void;
+  undo: () => void;
+  redo: () => void;
   currStrokeWidth: number;
   setStrokeWidth: React.Dispatch<React.SetStateAction<number>>;
   //drawing: boolean;
@@ -40,11 +40,17 @@ function ToolsBoard({ undo, redo, currStrokeWidth, setStrokeWidth }: props) {
       <div className="flex justify-center items-center w-2/5 aspect-square border-4 border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20">
         <Pipette size={32} color="black" strokeWidth={4} />
       </div>
-      <div className="flex justify-center items-center w-2/5 aspect-square border-4 border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20">
-        <Undo onClick={() => undo()} size={32} color="black" strokeWidth={4} />
+      <div
+        onClick={() => undo()}
+        className="flex justify-center items-center w-2/5 aspect-square border-4 border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20"
+      >
+        <Undo size={32} color="black" strokeWidth={4} />
       </div>
-      <div className="flex justify-center items-center w-2/5 aspect-square border-4 border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20">
-        <Redo onClick={() => redo()} color="black" size={32} strokeWidth={4} />
+      <div
+        onClick={() => redo()}
+        className="flex justify-center items-center w-2/5 aspect-square border-4 border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20"
+      >
+        <Redo color="black" size={32} strokeWidth={4} />
       </div>
       <div className="flex items-center w-full gap-3">
         <div

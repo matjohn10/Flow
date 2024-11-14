@@ -33,9 +33,9 @@ function GamePage() {
     socket.emit("init-entry", roomId);
     setEntrySent(true);
   };
-  function isCreator(): boolean {
-    return data?.creator === (localStorage.getItem("user-id") ?? "-1");
-  }
+  // function isCreator(): boolean {
+  //   return data?.creator === (localStorage.getItem("user-id") ?? "-1");
+  // }
 
   const [testContent, setTestContent] = useState("");
   useEffect(() => {

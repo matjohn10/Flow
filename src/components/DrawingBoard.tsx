@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import DevButton from "./DevButton";
-import { DrawMove, WindowSize } from "../utils/types";
+import { DrawMove, DrawStep, WindowSize } from "../utils/types";
 import ToolsBoard from "./ToolsBoard";
 import ColorsBoard from "./ColorsBoard";
 
@@ -20,9 +20,10 @@ function DrawingBoard() {
   const [color, setColor] = useState("#181C14"); // default -> black
   const [strokeWidth, setStrokeWidth] = useState(4);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [drawingStack, setDrawingStack] = useState<ImageData[]>([]); // TODO: stacks should be DrawMove[], simpler and faster than 1M len arrays
-  const [undoStack, setUndoStack] = useState<ImageData[]>([]);
-  const [drawMoves, setDrawMoves] = useState<DrawMove[]>([]);
+  const [drawingStack, setDrawingStack] = useState<DrawStep[]>([]);
+  const [undoStack, setUndoStack] = useState<DrawStep[]>([]);
+  const [currDrawMove, setCurrDrawMove] = useState<DrawMove[]>([]);
+  const [undoRedoTimer, setUndoRedoTimer] = useState(false);
 
   useEffect(() => {
     if (ref.current) {
@@ -83,8 +84,8 @@ function DrawingBoard() {
         event.clientX - elementRect.left,
         event.clientY - elementRect.top
       );
-      setDrawMoves([
-        ...drawMoves,
+      setCurrDrawMove([
+        ...currDrawMove,
         {
           kind: "start",
           x: event.clientX,
@@ -99,7 +100,8 @@ function DrawingBoard() {
   function end(event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
     if (event.button === MAIN_MOUSE_BUTTON && !!ctx && isDrawing) {
       setIsDrawing(false);
-      setDrawingStack([...drawingStack, ctx.getImageData(0, 0, width, height)]);
+      setDrawingStack([...drawingStack, currDrawMove]);
+      setCurrDrawMove([]);
     }
   }
 
@@ -112,8 +114,8 @@ function DrawingBoard() {
         event.clientY - elementRect.top
       );
       ctx.stroke();
-      setDrawMoves([
-        ...drawMoves,
+      setCurrDrawMove([
+        ...currDrawMove,
         {
           kind: "move",
           x: event.clientX,
@@ -133,25 +135,20 @@ function DrawingBoard() {
     ctx.strokeStyle = color;
   }
 
-  // TODO: test redraw/refactor with the stacks being DrawMove[] instead of ImageData[] for unod/redo
-  function reDraw(dSize: { dx: number; dy: number }) {
-    if (!ctx || !ref.current || drawMoves.length === 0) return;
-    ctx.clearRect(0, 0, width, height);
+  function reDrawStep(step: DrawStep) {
+    if (!ctx || !ref.current) return;
     setLineProperties();
     ctx.beginPath();
     let elementRect = ref.current.getBoundingClientRect();
-    ctx.moveTo(
-      drawMoves[0].x - elementRect.left + dSize.dx,
-      drawMoves[0].y - elementRect.top + dSize.dy
-    );
-    drawMoves.forEach((d) => {
-      ctx.strokeStyle = d.color;
-      ctx.lineWidth = d.strokeWidth;
-      ctx.lineTo(
-        d.x - elementRect.left + dSize.dx,
-        d.y - elementRect.top + dSize.dy
-      );
-      ctx.stroke();
+    step.forEach((m) => {
+      if (m.kind === "start") {
+        ctx.moveTo(m.x - elementRect.left, m.y - elementRect.top);
+      } else {
+        ctx.strokeStyle = m.color;
+        ctx.lineWidth = m.strokeWidth;
+        ctx.lineTo(m.x - elementRect.left, m.y - elementRect.top);
+        ctx.stroke();
+      }
     });
   }
 
@@ -160,9 +157,9 @@ function DrawingBoard() {
     const diff = [...drawingStack];
     const element = diff.pop();
     setDrawingStack(diff);
-    diff.length !== 0
-      ? ctx.putImageData(diff[diff.length - 1], 0, 0)
-      : ctx.clearRect(0, 0, width, height);
+
+    ctx.clearRect(0, 0, width, height);
+    diff.forEach((d) => reDrawStep(d));
     setUndoStack([...undoStack, element!]);
   }
   function redo() {
@@ -170,11 +167,12 @@ function DrawingBoard() {
     const diff = [...undoStack];
     const element = diff.pop();
     const newDrawStack = [...drawingStack, element!];
+    console.log(newDrawStack);
+
     setUndoStack(diff);
-    ctx.putImageData(newDrawStack[newDrawStack.length - 1], 0, 0);
+    reDrawStep(element!);
     setDrawingStack(newDrawStack);
   }
-
   return (
     <div className="relative flex justify-center items-center w-full h-2/3 gap-8">
       <ColorsBoard currColor={color} setColor={setColor} />
