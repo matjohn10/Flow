@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import DevButton from "./DevButton";
 import { DrawMove, WindowSize } from "../utils/types";
-import { assert } from "../utils/helpers";
 import ToolsBoard from "./ToolsBoard";
+import ColorsBoard from "./ColorsBoard";
 
+// TODO: Add conditional wrapper that disable drawing when guessing (based on round#)
+// TODO: Add conditional wrapper for mouse up/down when pen/eraser/square/circle/path/picker selected
 const MAIN_MOUSE_BUTTON = 0;
 
 function DrawingBoard() {
@@ -15,8 +17,10 @@ function DrawingBoard() {
     width: window.innerWidth,
     heigth: window.innerHeight,
   });
+  const [color, setColor] = useState("#181C14"); // default -> black
+  const [strokeWidth, setStrokeWidth] = useState(4);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [drawingStack, setDrawingStack] = useState<ImageData[]>([]);
+  const [drawingStack, setDrawingStack] = useState<ImageData[]>([]); // TODO: stacks should be DrawMove[], simpler and faster than 1M len arrays
   const [undoStack, setUndoStack] = useState<ImageData[]>([]);
   const [drawMoves, setDrawMoves] = useState<DrawMove[]>([]);
 
@@ -79,7 +83,16 @@ function DrawingBoard() {
         event.clientX - elementRect.left,
         event.clientY - elementRect.top
       );
-      setDrawMoves([...drawMoves, { x: event.clientX, y: event.clientY }]);
+      setDrawMoves([
+        ...drawMoves,
+        {
+          kind: "start",
+          x: event.clientX,
+          y: event.clientY,
+          color,
+          strokeWidth,
+        },
+      ]);
     }
   }
 
@@ -99,17 +112,28 @@ function DrawingBoard() {
         event.clientY - elementRect.top
       );
       ctx.stroke();
-      setDrawMoves([...drawMoves, { x: event.clientX, y: event.clientY }]);
+      setDrawMoves([
+        ...drawMoves,
+        {
+          kind: "move",
+          x: event.clientX,
+          y: event.clientY,
+          color,
+          strokeWidth,
+        },
+      ]);
     }
   }
 
   function setLineProperties() {
     if (!ctx) return;
-    ctx.lineWidth = 4;
+    ctx.lineWidth = strokeWidth;
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
+    ctx.strokeStyle = color;
   }
 
+  // TODO: test redraw/refactor with the stacks being DrawMove[] instead of ImageData[] for unod/redo
   function reDraw(dSize: { dx: number; dy: number }) {
     if (!ctx || !ref.current || drawMoves.length === 0) return;
     ctx.clearRect(0, 0, width, height);
@@ -121,6 +145,8 @@ function DrawingBoard() {
       drawMoves[0].y - elementRect.top + dSize.dy
     );
     drawMoves.forEach((d) => {
+      ctx.strokeStyle = d.color;
+      ctx.lineWidth = d.strokeWidth;
       ctx.lineTo(
         d.x - elementRect.left + dSize.dx,
         d.y - elementRect.top + dSize.dy
@@ -131,7 +157,6 @@ function DrawingBoard() {
 
   function undo() {
     if (!ctx || drawingStack.length === 0) return;
-    console.log("DrawingS:", drawingStack);
     const diff = [...drawingStack];
     const element = diff.pop();
     setDrawingStack(diff);
@@ -142,7 +167,6 @@ function DrawingBoard() {
   }
   function redo() {
     if (!ctx || undoStack.length === 0) return;
-    console.log("UndoS:", undoStack);
     const diff = [...undoStack];
     const element = diff.pop();
     const newDrawStack = [...drawingStack, element!];
@@ -153,7 +177,7 @@ function DrawingBoard() {
 
   return (
     <div className="relative flex justify-center items-center w-full h-2/3 gap-8">
-      <div className="w-1/6 h-full bg-blue-200 rounded-lg">leftmenu</div>
+      <ColorsBoard currColor={color} setColor={setColor} />
       <canvas
         ref={ref}
         height={height}
@@ -169,6 +193,8 @@ function DrawingBoard() {
       <ToolsBoard
         redo={redo}
         undo={undo}
+        currStrokeWidth={strokeWidth}
+        setStrokeWidth={setStrokeWidth}
         //drawing={isDrawing}
         //setDrawing={setIsDrawing}
       />
