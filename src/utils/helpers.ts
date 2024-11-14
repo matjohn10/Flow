@@ -19,3 +19,7 @@ export const FindRankOfPlayer = (playerS: string[], id: string): number => {
   }
   return -1;
 };
+
+export function assert(condition: boolean, message?: string) {
+  if (condition) throw new Error(message);
+}
