@@ -1,18 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import DevButton from "./DevButton";
-import {
-  Draggables,
-  DrawMove,
-  DrawStep,
-  Tool,
-  WindowSize,
-} from "../utils/types";
+import { DrawMove, DrawStep, Tool, WindowSize } from "../utils/types";
 import ToolsBoard from "./ToolsBoard";
 import ColorsBoard from "./ColorsBoard";
 
 // TODO: Add conditional wrapper that disable drawing when guessing (based on round#)
-// TODO: Add conditional wrapper for mouse up/down when pen/eraser/square/circle/path/picker selected
-const MAIN_MOUSE_BUTTON = 0;
+const MAIN_MOUSE_BUTTON = 0 as const;
+const CANVAS_COLOR = "#f9fafb" as const;
 
 function DrawingBoard() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -95,15 +89,11 @@ function DrawingBoard() {
         {
           kind: "start",
           tool: currentTool,
-          x: Draggables.includes(currentTool)
-            ? event.clientX - elementRect.left
-            : event.clientX,
-          y: Draggables.includes(currentTool)
-            ? event.clientY - elementRect.top
-            : event.clientY,
+          x: event.clientX - elementRect.left,
+          y: event.clientY - elementRect.top,
           width: 0,
           height: 0,
-          color,
+          color: currentTool === "eraser" ? CANVAS_COLOR : color,
           strokeWidth,
         },
       ]);
@@ -202,6 +192,54 @@ function DrawingBoard() {
 
           drawingStack.forEach((d) => DrawStep(d));
           break;
+        case "line":
+          ctx.clearRect(0, 0, width, height);
+          var widthLine = event.clientX - elementRect.left;
+          var heightLine = event.clientY - elementRect.top;
+          const moveLine: DrawMove = {
+            kind: "move",
+            tool: currentTool,
+            x: currDrawMove[0].x,
+            y: currDrawMove[0].y,
+            width: widthLine,
+            height: heightLine,
+            color,
+            strokeWidth,
+          };
+          if (currDrawMove.length === 1) {
+            const newMoves = [...currDrawMove, moveLine];
+            DrawStep(newMoves);
+            setCurrDrawMove(newMoves);
+          } else {
+            const newMoves = [...currDrawMove];
+            newMoves[1] = moveLine;
+            DrawStep(newMoves);
+            setCurrDrawMove(newMoves);
+          }
+          drawingStack.forEach((d) => DrawStep(d));
+          break;
+        case "eraser":
+          ctx.lineTo(
+            event.clientX - elementRect.left,
+            event.clientY - elementRect.top
+          );
+          ctx.strokeStyle = CANVAS_COLOR;
+          ctx.stroke();
+          // eraser updates currdraw on each moves
+          setCurrDrawMove([
+            ...currDrawMove,
+            {
+              kind: "move",
+              tool: currentTool,
+              x: event.clientX,
+              y: event.clientY,
+              width: 0,
+              height: 0,
+              color: CANVAS_COLOR,
+              strokeWidth,
+            },
+          ]);
+          break;
       }
     }
   }
@@ -221,6 +259,7 @@ function DrawingBoard() {
     let elementRect = ref.current.getBoundingClientRect();
     step.forEach((m) => {
       if (m.kind === "start") {
+        console.log("here");
         ctx.moveTo(m.x, m.y);
       } else {
         ctx.strokeStyle = m.color;
@@ -233,6 +272,10 @@ function DrawingBoard() {
           // move the pen to the right perimeter to remove the drawn radius
           ctx.moveTo(m.x + radius, m.y);
           ctx.arc(m.x, m.y, radius, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (m.tool === "line") {
+          ctx.moveTo(m.x, m.y);
+          ctx.lineTo(m.width, m.height);
           ctx.stroke();
         } else {
           ctx.lineTo(m.x - elementRect.left, m.y - elementRect.top);
@@ -277,7 +320,6 @@ function DrawingBoard() {
       >
         Canvas not supported in your browser.
       </canvas>
-      {/* TODO: Looks like a short delay is needed before you can undo/redo again */}
       <ToolsBoard
         redo={redo}
         undo={undo}
@@ -285,8 +327,6 @@ function DrawingBoard() {
         setStrokeWidth={setStrokeWidth}
         currentTool={currentTool}
         setCurrentTool={setCurrentTool}
-        //drawing={isDrawing}
-        //setDrawing={setIsDrawing}
       />
       <DevButton
         className="absolute top-4 right-2"
