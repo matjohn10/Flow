@@ -3,6 +3,7 @@ import DevButton from "./DevButton";
 import { DrawMove, DrawStep, Tool, WindowSize } from "../utils/types";
 import ToolsBoard from "./ToolsBoard";
 import ColorsBoard from "./ColorsBoard";
+import { pixelToRGBA, rgbaToHex } from "../utils/helpers";
 
 // TODO: Add conditional wrapper that disable drawing when guessing (based on round#)
 const MAIN_MOUSE_BUTTON = 0 as const;
@@ -75,28 +76,37 @@ function DrawingBoard() {
 
   function start(event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
     if (event.button === MAIN_MOUSE_BUTTON && !!ctx && !!ref.current) {
-      setLineProperties();
-      3;
-      setIsDrawing(true);
-      ctx.beginPath();
-
       let elementRect = ref.current.getBoundingClientRect();
-      ctx.moveTo(
-        event.clientX - elementRect.left,
-        event.clientY - elementRect.top
-      );
-      setCurrDrawMove([
-        {
-          kind: "start",
-          tool: currentTool,
-          x: event.clientX - elementRect.left,
-          y: event.clientY - elementRect.top,
-          width: 0,
-          height: 0,
-          color: currentTool === "eraser" ? CANVAS_COLOR : color,
-          strokeWidth,
-        },
-      ]);
+      if (currentTool === "picker") {
+        const x = Math.floor(event.clientX - elementRect.left) * 4;
+        const y = Math.floor(event.clientY - elementRect.top) * 4;
+        const index = x + y * Math.floor(width);
+        const pixels = ctx
+          .getImageData(0, 0, Math.floor(width), Math.floor(height))
+          .data.slice(index, index + 4);
+        setColor(rgbaToHex(pixelToRGBA(pixels), true));
+      } else {
+        setLineProperties();
+        3;
+        setIsDrawing(true);
+        ctx.beginPath();
+        ctx.moveTo(
+          event.clientX - elementRect.left,
+          event.clientY - elementRect.top
+        );
+        setCurrDrawMove([
+          {
+            kind: "start",
+            tool: currentTool,
+            x: event.clientX - elementRect.left,
+            y: event.clientY - elementRect.top,
+            width: 0,
+            height: 0,
+            color: currentTool === "eraser" ? CANVAS_COLOR : color,
+            strokeWidth,
+          },
+        ]);
+      }
     }
   }
 
@@ -242,6 +252,18 @@ function DrawingBoard() {
           break;
       }
     }
+    // else if (!!ctx && ref.current && currentTool === "picker") {
+    //   let elementRect = ref.current.getBoundingClientRect();
+    //   ctx.beginPath();
+    //   const pickRadius = 10;
+    //   const x = event.clientX - elementRect.left;
+    //   const y = event.clientY - elementRect.top;
+    //   ctx.moveTo(x + pickRadius, y);
+    //   ctx.arc(x, y, pickRadius, 0, Math.PI * 2);
+    //   ctx.lineWidth = 1;
+    //   ctx.stroke();
+    //   ctx.clearRect(0, 0, width, height);
+    // }
   }
 
   function setLineProperties() {
@@ -300,12 +322,12 @@ function DrawingBoard() {
     const diff = [...undoStack];
     const element = diff.pop();
     const newDrawStack = [...drawingStack, element!];
-    console.log(newDrawStack);
 
     setUndoStack(diff);
     DrawStep(element!);
     setDrawingStack(newDrawStack);
   }
+
   return (
     <div className="relative flex justify-center items-center w-full h-2/3 gap-8">
       <ColorsBoard currColor={color} setColor={setColor} />
