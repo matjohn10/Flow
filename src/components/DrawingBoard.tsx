@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import DevButton from "./DevButton";
-import { DrawMove, DrawStep, WindowSize } from "../utils/types";
+import {
+  Draggables,
+  DrawMove,
+  DrawStep,
+  Tool,
+  WindowSize,
+} from "../utils/types";
 import ToolsBoard from "./ToolsBoard";
 import ColorsBoard from "./ColorsBoard";
 
@@ -19,11 +25,11 @@ function DrawingBoard() {
   });
   const [color, setColor] = useState("#181C14"); // default -> black
   const [strokeWidth, setStrokeWidth] = useState(4);
+  const [currentTool, setCurrentTool] = useState<Tool>("pen");
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawingStack, setDrawingStack] = useState<DrawStep[]>([]);
   const [undoStack, setUndoStack] = useState<DrawStep[]>([]);
   const [currDrawMove, setCurrDrawMove] = useState<DrawMove[]>([]);
-  const [undoRedoTimer, setUndoRedoTimer] = useState(false);
 
   useEffect(() => {
     if (ref.current) {
@@ -76,6 +82,7 @@ function DrawingBoard() {
   function start(event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
     if (event.button === MAIN_MOUSE_BUTTON && !!ctx && !!ref.current) {
       setLineProperties();
+      3;
       setIsDrawing(true);
       ctx.beginPath();
 
@@ -85,11 +92,17 @@ function DrawingBoard() {
         event.clientY - elementRect.top
       );
       setCurrDrawMove([
-        ...currDrawMove,
         {
           kind: "start",
-          x: event.clientX,
-          y: event.clientY,
+          tool: currentTool,
+          x: Draggables.includes(currentTool)
+            ? event.clientX - elementRect.left
+            : event.clientX,
+          y: Draggables.includes(currentTool)
+            ? event.clientY - elementRect.top
+            : event.clientY,
+          width: 0,
+          height: 0,
           color,
           strokeWidth,
         },
@@ -109,21 +122,87 @@ function DrawingBoard() {
     event.preventDefault();
     if (isDrawing && !!ctx && !!ref.current) {
       let elementRect = ref.current.getBoundingClientRect();
-      ctx.lineTo(
-        event.clientX - elementRect.left,
-        event.clientY - elementRect.top
-      );
-      ctx.stroke();
-      setCurrDrawMove([
-        ...currDrawMove,
-        {
-          kind: "move",
-          x: event.clientX,
-          y: event.clientY,
-          color,
-          strokeWidth,
-        },
-      ]);
+      switch (currentTool) {
+        case "pen":
+          ctx.lineTo(
+            event.clientX - elementRect.left,
+            event.clientY - elementRect.top
+          );
+          ctx.stroke();
+          // pen updates currdraw on each moves
+          setCurrDrawMove([
+            ...currDrawMove,
+            {
+              kind: "move",
+              tool: currentTool,
+              x: event.clientX,
+              y: event.clientY,
+              width: 0,
+              height: 0,
+              color,
+              strokeWidth,
+            },
+          ]);
+          break;
+        case "square":
+          ctx.clearRect(0, 0, width, height);
+          var widthSquare =
+            event.clientX - elementRect.left - currDrawMove[0].x;
+          var heightSquare =
+            event.clientY - elementRect.top - currDrawMove[0].y;
+          const move: DrawMove = {
+            kind: "move",
+            tool: currentTool,
+            x: currDrawMove[0].x,
+            y: currDrawMove[0].y,
+            width: widthSquare,
+            height: heightSquare,
+            color,
+            strokeWidth,
+          };
+          if (currDrawMove.length === 1) {
+            const newMoves = [...currDrawMove, move];
+            DrawStep(newMoves);
+            setCurrDrawMove(newMoves);
+          } else {
+            const newMoves = [...currDrawMove];
+            newMoves[1] = move;
+            DrawStep(newMoves);
+            setCurrDrawMove(newMoves);
+          }
+
+          drawingStack.forEach((d) => DrawStep(d));
+          break;
+        case "circle":
+          ctx.clearRect(0, 0, width, height);
+          var widthCircle =
+            event.clientX - elementRect.left - currDrawMove[0].x;
+          var heightCircle =
+            event.clientY - elementRect.top - currDrawMove[0].y;
+          const moveCircle: DrawMove = {
+            kind: "move",
+            tool: currentTool,
+            x: currDrawMove[0].x,
+            y: currDrawMove[0].y,
+            width: widthCircle,
+            height: heightCircle,
+            color,
+            strokeWidth,
+          };
+          if (currDrawMove.length === 1) {
+            const newMoves = [...currDrawMove, moveCircle];
+            DrawStep(newMoves);
+            setCurrDrawMove(newMoves);
+          } else {
+            const newMoves = [...currDrawMove];
+            newMoves[1] = moveCircle;
+            DrawStep(newMoves);
+            setCurrDrawMove(newMoves);
+          }
+
+          drawingStack.forEach((d) => DrawStep(d));
+          break;
+      }
     }
   }
 
@@ -135,19 +214,30 @@ function DrawingBoard() {
     ctx.strokeStyle = color;
   }
 
-  function reDrawStep(step: DrawStep) {
+  function DrawStep(step: DrawStep) {
     if (!ctx || !ref.current) return;
     setLineProperties();
     ctx.beginPath();
     let elementRect = ref.current.getBoundingClientRect();
     step.forEach((m) => {
       if (m.kind === "start") {
-        ctx.moveTo(m.x - elementRect.left, m.y - elementRect.top);
+        ctx.moveTo(m.x, m.y);
       } else {
         ctx.strokeStyle = m.color;
         ctx.lineWidth = m.strokeWidth;
-        ctx.lineTo(m.x - elementRect.left, m.y - elementRect.top);
-        ctx.stroke();
+        if (m.tool === "square") {
+          ctx.rect(m.x, m.y, m.width!, m.height!);
+          ctx.stroke();
+        } else if (m.tool === "circle") {
+          const radius = Math.sqrt(m.width * m.width + m.height * m.height);
+          // move the pen to the right perimeter to remove the drawn radius
+          ctx.moveTo(m.x + radius, m.y);
+          ctx.arc(m.x, m.y, radius, 0, Math.PI * 2);
+          ctx.stroke();
+        } else {
+          ctx.lineTo(m.x - elementRect.left, m.y - elementRect.top);
+          ctx.stroke();
+        }
       }
     });
   }
@@ -159,7 +249,7 @@ function DrawingBoard() {
     setDrawingStack(diff);
 
     ctx.clearRect(0, 0, width, height);
-    diff.forEach((d) => reDrawStep(d));
+    diff.forEach((d) => DrawStep(d));
     setUndoStack([...undoStack, element!]);
   }
   function redo() {
@@ -170,7 +260,7 @@ function DrawingBoard() {
     console.log(newDrawStack);
 
     setUndoStack(diff);
-    reDrawStep(element!);
+    DrawStep(element!);
     setDrawingStack(newDrawStack);
   }
   return (
@@ -193,6 +283,8 @@ function DrawingBoard() {
         undo={undo}
         currStrokeWidth={strokeWidth}
         setStrokeWidth={setStrokeWidth}
+        currentTool={currentTool}
+        setCurrentTool={setCurrentTool}
         //drawing={isDrawing}
         //setDrawing={setIsDrawing}
       />
