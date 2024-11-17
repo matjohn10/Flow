@@ -43,3 +43,21 @@ export const useAddEntry = () => {
     },
   });
 };
+
+export const useAddDrawing = () => {
+  const query = useQueryClient();
+  return useMutation({
+    async mutationFn(data: { drawing: string; rank: number; roomId: string }) {
+      await fetch("http://localhost:8000/game/drawing/" + data.roomId, {
+        method: "POST",
+        body: JSON.stringify({ entry: data.drawing, rank: data.rank }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    },
+    async onSuccess(_, data) {
+      await query.invalidateQueries({ queryKey: ["game", data.roomId] });
+    },
+  });
+};

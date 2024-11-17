@@ -17,4 +17,4 @@ export type WindowSize = {
 };
 
 export type Tool = "pen" | "eraser" | "square" | "circle" | "line" | "picker";
-export const Draggables: Tool[] = ["square", "circle", "line"] as const;
+//export const Draggables: Tool[] = ["square", "circle", "line"] as const;

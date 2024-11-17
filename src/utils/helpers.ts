@@ -1,4 +1,5 @@
 import { Player } from "../queries/games";
+import { DrawStep } from "./types";
 
 export const AddPlayerIfNew = (player: Player, arr: Player[]): Player[] => {
   const found = arr.find((p) => p.playerId === player.playerId);
@@ -84,3 +85,58 @@ export const pixelToRGBA = (pixels: Uint8ClampedArray) => {
   }
   return str + ")";
 };
+
+export function isDrawingRound(round?: number) {
+  if (!round) return true;
+  return round % 2 === 0;
+}
+
+export function setLineProperties(
+  ctx: CanvasRenderingContext2D,
+  strokeWidth: number,
+  color: string
+) {
+  if (!ctx) return;
+  ctx.lineWidth = strokeWidth;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.strokeStyle = color;
+}
+
+export function drawStep(
+  ctx: CanvasRenderingContext2D,
+  step: DrawStep,
+  ref: React.RefObject<HTMLCanvasElement>,
+  strokeWidth: number,
+  color: string
+) {
+  if (!ctx || !ref.current) return;
+  setLineProperties(ctx, strokeWidth, color);
+  ctx.beginPath();
+  let elementRect = ref.current.getBoundingClientRect();
+  step.forEach((m) => {
+    if (m.kind === "start") {
+      ctx.moveTo(m.x, m.y);
+    } else {
+      ctx.strokeStyle = m.color;
+      ctx.lineWidth = m.strokeWidth;
+      if (m.tool === "square") {
+        ctx.rect(m.x, m.y, m.width!, m.height!);
+        ctx.stroke();
+      } else if (m.tool === "circle") {
+        const radius = Math.sqrt(m.width * m.width + m.height * m.height);
+        // move the pen to the right perimeter to remove the drawn radius
+        ctx.moveTo(m.x + radius, m.y);
+        ctx.arc(m.x, m.y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if (m.tool === "line") {
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(m.width, m.height);
+        ctx.stroke();
+      } else {
+        ctx.lineTo(m.x - elementRect.left, m.y - elementRect.top);
+        ctx.stroke();
+      }
+    }
+  });
+}

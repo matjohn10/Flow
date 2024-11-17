@@ -1,12 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAddEntry, useGame } from "../queries/games";
-import { useEffect, useState } from "react";
-import { FindRankOfPlayer } from "../utils/helpers";
+import { useAddDrawing, useAddEntry, useGame } from "../queries/games";
+import { useEffect, useRef, useState } from "react";
+import { drawStep, FindRankOfPlayer, isDrawingRound } from "../utils/helpers";
 import { socket } from "../utils/socket";
 import DevButton from "./DevButton";
 import DrawingBoard from "./DrawingBoard";
+import { DrawStep } from "../utils/types";
 
+// TODO: Make a useContext for the game stuff (canvas, ctx, ref, game object, etc)
 function GamePage() {
   const query = useQueryClient();
   const params = useParams();
@@ -14,6 +16,18 @@ function GamePage() {
   const roomId = params.roomId;
   const { data } = useGame(roomId ?? "");
   const { mutateAsync: addEntry, isPending } = useAddEntry();
+  const { mutateAsync: addDrawing, isPending: isDrawingPending } =
+    useAddDrawing();
+
+  const ref = useRef<HTMLCanvasElement>(null);
+  const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
+  const [drawingStack, setDrawingStack] = useState<DrawStep[]>([]);
+  const [canvasWidth, setCanvasWidth] = useState(
+    ((4 / 3) * window.innerHeight * 2) / 3
+  );
+  const [canvasHeight, setCanvasHeight] = useState(
+    (window.innerHeight * 2) / 3
+  );
 
   const [entryCount, setEntryCount] = useState(0);
   const [entry, setEntry] = useState("");
@@ -30,39 +44,76 @@ function GamePage() {
       roomId: roomId ?? "",
     });
     // tell others you have done your initial entry
-    socket.emit("init-entry", roomId);
+    socket.emit("init-entry", roomId, "guesses");
     setEntrySent(true);
   };
-  // function isCreator(): boolean {
-  //   return data?.creator === (localStorage.getItem("user-id") ?? "-1");
-  // }
-
-  const [testContent, setTestContent] = useState("");
-  useEffect(() => {
-    socket.on("start-drawing", (word: string) => {
-      console.log("WORD TO DRAW:", word);
+  const handleDrawingSubmit = async () => {
+    if (!data) return;
+    await addDrawing({
+      drawing: JSON.stringify(drawingStack),
+      rank: FindRankOfPlayer(
+        data.players,
+        localStorage.getItem("user-id") ?? "-1"
+      ),
+      roomId: roomId ?? "",
     });
+    socket.emit("init-entry", roomId, "drawings");
+    setEntrySent(true);
+  };
+
+  useEffect(() => {
+    // TODO: clean up the flow of events for each rounds
     socket.on("num-entry", (num: number) => {
       setEntryCount((prev) => Math.max(prev, num));
-      //console.log("ENTRY_COUNT:", Math.max(entryCount, num));
       if (Math.max(entryCount, num) >= (data?.players.length ?? 1000)) {
         // send to server that this and all players are ready, server will respond individually with content
-        console.log("USER READY:", localStorage.getItem("user-id"));
         socket.emit("ready", roomId, data?.round ?? 0);
       }
     });
+    socket.on("round-update", async () => {
+      await query.invalidateQueries({ queryKey: ["game", roomId] });
+    });
+    socket.on("player-out", async () => {
+      await query.invalidateQueries({ queryKey: ["game", roomId] });
+      navigate("/game");
+    });
     socket.on("round-content", async (contentS: string) => {
+      // Socket starting the round (drawing/guess)
+      // TODO: start timer
       await query.invalidateQueries({ queryKey: ["game", roomId] });
       const content = JSON.parse(contentS) as {
         content: string;
-        kind: "draw" | "guess";
+        kind: "drawings" | "guesses";
       };
-      console.log(content);
-      setTestContent(contentS);
-      // TODO: Make current page the drawing and guessing page, just disable stuff when not used
-      // TODO: get content and show on screen (guess to top of canvas with empty canvas, drawing in canvas with input for guess)
+
+      if (content.kind === "drawings") {
+        console.log("Content:", content, ctx, ref.current);
+        if (ref.current && !!ctx) {
+          ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+          const draw = JSON.parse(content.content) as DrawStep[];
+          draw.forEach((d) => drawStep(ctx, d, ref, 4, "#ff0000"));
+        }
+      } else setEntry(content.content);
+      setEntrySent(false);
+      setEntryCount(0);
     });
-  }, []);
+
+    return () => {
+      socket.off("num-entry");
+      socket.off("round-update");
+      socket.off("round-content");
+      socket.off("player-out");
+    };
+  }, [ctx]);
+
+  useEffect(() => {
+    if (ref.current) {
+      const context = ref.current.getContext("2d");
+      if (context) {
+        setCtx(context);
+      }
+    }
+  }, [ref]);
 
   return (
     <div className="relative flex flex-col w-full h-full">
@@ -79,28 +130,63 @@ function GamePage() {
           </h2>
         </div>
 
-        <DrawingBoard />
+        <DrawingBoard
+          refC={ref}
+          ctx={ctx}
+          width={canvasWidth}
+          height={canvasHeight}
+          setWidth={setCanvasWidth}
+          setHeight={setCanvasHeight}
+          round={data?.round}
+          drawingStack={drawingStack}
+          setDrawingStack={setDrawingStack}
+        />
 
         <div className="flex w-full justify-center items-center gap-4">
           <input
             className="font-semibold text-lg bg-gray-50 text-black p-2 rounded-lg w-1/3"
             maxLength={36}
             placeholder="Write word/guess here..."
-            disabled={!data || data.round % 2 === 0}
+            disabled={!data || isDrawingRound(data.round)}
             type="text"
             value={entry}
             onChange={(e) => setEntry(e.currentTarget.value)}
           />
-          <button
-            onClick={handleEntrySubmit}
-            disabled={!data || entrySent}
+          {isDrawingRound(data?.round) ? (
+            <button
+              className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded"
+              disabled={!data}
+              onClick={handleDrawingSubmit}
+            >
+              {!entrySent
+                ? isDrawingPending
+                  ? "Saving..."
+                  : "Submit Drawing"
+                : "Done!"}
+            </button>
+          ) : (
+            <button
+              className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded"
+              onClick={handleEntrySubmit}
+              disabled={!data}
+            >
+              {!entrySent ? (isPending ? "Saving..." : "Submit") : "Done!"}
+            </button>
+          )}
+
+          {/* <button
+            onClick={
+              isDrawingRound(data?.round)
+                ? handleDrawingSubmit
+                : handleEntrySubmit
+            }
+            disabled={!data}
             className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded"
           >
             {!entrySent ? (isPending ? "Saving..." : "Submit") : "Done!"}
-          </button>
+          </button> */}
         </div>
       </div>
-      <div>{testContent}</div>
     </div>
   );
 }
