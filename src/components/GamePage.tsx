@@ -46,6 +46,7 @@ function GamePage() {
     // tell others you have done your initial entry
     socket.emit("init-entry", roomId, "guesses");
     setEntrySent(true);
+    setEntry("");
   };
   const handleDrawingSubmit = async () => {
     if (!data) return;
@@ -59,10 +60,10 @@ function GamePage() {
     });
     socket.emit("init-entry", roomId, "drawings");
     setEntrySent(true);
+    setDrawingStack([]);
   };
 
   useEffect(() => {
-    // TODO: clean up the flow of events for each rounds
     socket.on("num-entry", (num: number) => {
       setEntryCount((prev) => Math.max(prev, num));
       if (Math.max(entryCount, num) >= (data?.players.length ?? 1000)) {
@@ -105,6 +106,14 @@ function GamePage() {
       socket.off("player-out");
     };
   }, [ctx]);
+
+  // END GAME
+  useEffect(() => {
+    if (data && data.players.length < data.round) {
+      console.log("GAME IS DONE");
+      //navigate(`/game-time/${roomId}/end`);
+    }
+  }, [data?.round]);
 
   useEffect(() => {
     if (ref.current) {
@@ -173,18 +182,6 @@ function GamePage() {
               {!entrySent ? (isPending ? "Saving..." : "Submit") : "Done!"}
             </button>
           )}
-
-          {/* <button
-            onClick={
-              isDrawingRound(data?.round)
-                ? handleDrawingSubmit
-                : handleEntrySubmit
-            }
-            disabled={!data}
-            className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded"
-          >
-            {!entrySent ? (isPending ? "Saving..." : "Submit") : "Done!"}
-          </button> */}
         </div>
       </div>
     </div>

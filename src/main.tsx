@@ -8,6 +8,7 @@ import { SetSocket } from "./utils/socket.ts";
 import WaitPage from "./components/WaitPage.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import GamePage from "./components/GamePage.tsx";
+import GameEnd from "./components/GameEnd.tsx";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,14 @@ const router = createBrowserRouter([
   {
     path: "/game-time/:roomId/play",
     element: <GamePage />,
+  },
+  {
+    path: "/game-time/:roomId/end",
+    element: <GameEnd />,
+  },
+  {
+    path: "/tests",
+    element: <div className="w-full h-full p-4 flex justify-center">TESTS</div>,
   },
 ]);
 

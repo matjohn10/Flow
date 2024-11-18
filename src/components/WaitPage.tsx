@@ -115,6 +115,7 @@ function WaitPage() {
             Minimum players to play (4): {data?.players.length ?? 0}/8
           </p>
           <div className="flex flex-wrap w-1/2 gap-1">
+            {/* TODO: Set back real players */}
             {TestPlayers.map((c) => {
               //data?.players
               const p = c; //ParseToPlayer(c);

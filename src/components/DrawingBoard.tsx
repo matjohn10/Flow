@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import DevButton from "./DevButton";
 import { DrawMove, DrawStep, Tool } from "../utils/types";
 import ToolsBoard from "./ToolsBoard";
@@ -11,7 +11,6 @@ import {
   setLineProperties,
 } from "../utils/helpers";
 
-// TODO: Add conditional wrapper that disable drawing when guessing (based on round#)
 const MAIN_MOUSE_BUTTON = 0 as const;
 const CANVAS_COLOR = "#f9fafb" as const;
 
@@ -300,15 +299,15 @@ function DrawingBoard({
         className="absolute top-4 right-2"
         text="Canvas Data"
         func={() => {
-          if (!ctx) return;
-          console.log("DRAW STACK --");
-          drawingStack.forEach((d) => {
-            console.log(d);
-          });
-          console.log("UNDO STACK --");
-          undoStack.forEach((d) => {
-            console.log(d);
-          });
+          if (!ctx || !refC.current) return;
+          // console.log("DRAW STACK --");
+          // drawingStack.forEach((d) => {
+          //   console.log(d);
+          // });
+          // console.log("UNDO STACK --");
+          // undoStack.forEach((d) => {
+          //   console.log(d);
+          // });
         }}
       />
     </div>

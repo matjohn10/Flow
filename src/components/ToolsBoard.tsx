@@ -18,12 +18,7 @@ interface props {
   setStrokeWidth: React.Dispatch<React.SetStateAction<number>>;
   currentTool: Tool;
   setCurrentTool: React.Dispatch<React.SetStateAction<Tool>>;
-  //drawing: boolean;
-  //setDrawing: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
-// TODO: Implement Pen - false -> no drawing, true -> drawing
-// TODO: Implement Eraser, square, circle, line, picker - all should be exclusive (pen too)
 
 function ToolsBoard({
   undo,
