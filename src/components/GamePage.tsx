@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAddDrawing, useAddEntry, useGame } from "../queries/games";
 import { useEffect, useRef, useState } from "react";
-import { drawStep, FindRankOfPlayer, isDrawingRound } from "../utils/helpers";
+import { FindRankOfPlayer, isDrawingRound } from "../utils/helpers";
 import { socket } from "../utils/socket";
 import DevButton from "./DevButton";
 import DrawingBoard from "./DrawingBoard";
@@ -32,6 +32,7 @@ function GamePage() {
   const [entryCount, setEntryCount] = useState(0);
   const [entry, setEntry] = useState("");
   const [entrySent, setEntrySent] = useState(false);
+  const [drawingToGuess, setDrawingToGuess] = useState<string | null>(null);
   const handleEntrySubmit = async () => {
     if (!data) return;
 
@@ -47,11 +48,13 @@ function GamePage() {
     socket.emit("init-entry", roomId, "guesses");
     setEntrySent(true);
     setEntry("");
+    setDrawingToGuess(null);
   };
   const handleDrawingSubmit = async () => {
-    if (!data) return;
+    if (!data || !ref.current) return;
+    const imgUrl = ref.current.toDataURL();
     await addDrawing({
-      drawing: JSON.stringify(drawingStack),
+      drawing: imgUrl,
       rank: FindRankOfPlayer(
         data.players,
         localStorage.getItem("user-id") ?? "-1"
@@ -61,6 +64,7 @@ function GamePage() {
     socket.emit("init-entry", roomId, "drawings");
     setEntrySent(true);
     setDrawingStack([]);
+    setDrawingToGuess(null);
   };
 
   useEffect(() => {
@@ -88,13 +92,11 @@ function GamePage() {
       };
 
       if (content.kind === "drawings") {
-        console.log("Content:", content, ctx, ref.current);
-        if (ref.current && !!ctx) {
-          ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-          const draw = JSON.parse(content.content) as DrawStep[];
-          draw.forEach((d) => drawStep(ctx, d, ref, 4, "#ff0000"));
-        }
-      } else setEntry(content.content);
+        setDrawingToGuess(content.content);
+      } else {
+        setDrawingStack([]);
+        setEntry(content.content);
+      }
       setEntrySent(false);
       setEntryCount(0);
     });
@@ -149,6 +151,7 @@ function GamePage() {
           round={data?.round}
           drawingStack={drawingStack}
           setDrawingStack={setDrawingStack}
+          drawingToGuess={drawingToGuess}
         />
 
         <div className="flex w-full justify-center items-center gap-4">

@@ -117,21 +117,34 @@ export function drawStep(
   let elementRect = ref.current.getBoundingClientRect();
   step.forEach((m) => {
     if (m.kind === "start") {
-      ctx.moveTo(m.x, m.y);
+      ctx.moveTo(m.x - elementRect.left, m.y - elementRect.top);
+      ctx.fillStyle = "red";
+      ctx.fillRect(m.x - elementRect.left, m.y - elementRect.top, 10, 10);
     } else {
       ctx.strokeStyle = m.color;
       ctx.lineWidth = m.strokeWidth;
       if (m.tool === "square") {
-        ctx.rect(m.x, m.y, m.width!, m.height!);
+        ctx.rect(
+          m.x - elementRect.left,
+          m.y - elementRect.top,
+          m.width!,
+          m.height!
+        );
         ctx.stroke();
       } else if (m.tool === "circle") {
         const radius = Math.sqrt(m.width * m.width + m.height * m.height);
         // move the pen to the right perimeter to remove the drawn radius
-        ctx.moveTo(m.x + radius, m.y);
-        ctx.arc(m.x, m.y, radius, 0, Math.PI * 2);
+        ctx.moveTo(m.x - elementRect.left + radius, m.y - elementRect.top);
+        ctx.arc(
+          m.x - elementRect.left,
+          m.y - elementRect.top,
+          radius,
+          0,
+          Math.PI * 2
+        );
         ctx.stroke();
       } else if (m.tool === "line") {
-        ctx.moveTo(m.x, m.y);
+        ctx.moveTo(m.x - elementRect.left, m.y - elementRect.top);
         ctx.lineTo(m.width, m.height);
         ctx.stroke();
       } else {

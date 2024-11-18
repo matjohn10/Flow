@@ -24,7 +24,10 @@ interface props {
   height: number;
   setWidth: React.Dispatch<React.SetStateAction<number>>;
   setHeight: React.Dispatch<React.SetStateAction<number>>;
+  drawingToGuess: string | null;
 }
+
+// TODO: REFACTOR TO SHOW IMAGE OF OTHERS CANVAS INSTEAD OF REDRAWING
 
 function DrawingBoard({
   round,
@@ -36,6 +39,7 @@ function DrawingBoard({
   height,
   setWidth,
   setHeight,
+  drawingToGuess,
 }: props) {
   const [color, setColor] = useState("#181C14"); // default -> black
   const [strokeWidth, setStrokeWidth] = useState(4);
@@ -82,8 +86,8 @@ function DrawingBoard({
           {
             kind: "start",
             tool: currentTool,
-            x: event.clientX - elementRect.left,
-            y: event.clientY - elementRect.top,
+            x: event.clientX,
+            y: event.clientY,
             width: 0,
             height: 0,
             color: currentTool === "eraser" ? CANVAS_COLOR : color,
@@ -133,10 +137,8 @@ function DrawingBoard({
           drawingStack.forEach((d) =>
             drawStep(ctx, d, refC, strokeWidth, color)
           );
-          var widthSquare =
-            event.clientX - elementRect.left - currDrawMove[0].x;
-          var heightSquare =
-            event.clientY - elementRect.top - currDrawMove[0].y;
+          var widthSquare = event.clientX - currDrawMove[0].x;
+          var heightSquare = event.clientY - currDrawMove[0].y;
           const move: DrawMove = {
             kind: "move",
             tool: currentTool,
@@ -163,10 +165,8 @@ function DrawingBoard({
           drawingStack.forEach((d) =>
             drawStep(ctx, d, refC, strokeWidth, color)
           );
-          var widthCircle =
-            event.clientX - elementRect.left - currDrawMove[0].x;
-          var heightCircle =
-            event.clientY - elementRect.top - currDrawMove[0].y;
+          var widthCircle = event.clientX - currDrawMove[0].x;
+          var heightCircle = event.clientY - currDrawMove[0].y;
           const moveCircle: DrawMove = {
             kind: "move",
             tool: currentTool,
@@ -269,24 +269,36 @@ function DrawingBoard({
   return (
     <div className="relative flex justify-center items-center w-full h-2/3 gap-8">
       <ColorsBoard currColor={color} setColor={setColor} />
-      <canvas
-        ref={refC}
-        height={height}
-        width={width}
-        onMouseMove={(e) => {
-          if (isDrawingRound(round)) move(e);
-        }}
-        onMouseUp={(e) => {
-          if (isDrawingRound(round)) end(e);
-        }}
-        onMouseDown={(e) => {
-          if (isDrawingRound(round)) start(e);
-        }}
-        className="bg-gray-50 rounded"
-        style={{ cursor: isDrawingRound(round) ? "crosshair" : "not-allowed" }}
-      >
-        Canvas not supported in your browser.
-      </canvas>
+      {drawingToGuess ? (
+        <div style={{ width, height }} className="bg-gray-50 rounded">
+          <img
+            className="w-full h-full object-cover"
+            src={drawingToGuess}
+            alt="Guess Image"
+          />
+        </div>
+      ) : (
+        <canvas
+          ref={refC}
+          height={height}
+          width={width}
+          onMouseMove={(e) => {
+            if (isDrawingRound(round)) move(e);
+          }}
+          onMouseUp={(e) => {
+            if (isDrawingRound(round)) end(e);
+          }}
+          onMouseDown={(e) => {
+            if (isDrawingRound(round)) start(e);
+          }}
+          className="bg-gray-50 rounded"
+          style={{
+            cursor: isDrawingRound(round) ? "crosshair" : "not-allowed",
+          }}
+        >
+          Canvas not supported in your browser.
+        </canvas>
+      )}
       <ToolsBoard
         redo={redo}
         undo={undo}
