@@ -113,18 +113,18 @@ function GamePage() {
   useEffect(() => {
     if (data && data.players.length < data.round) {
       console.log("GAME IS DONE");
-      //navigate(`/game-time/${roomId}/end`);
+      navigate(`/game-time/${roomId}/end`);
     }
   }, [data?.round]);
 
   useEffect(() => {
     if (ref.current) {
       const context = ref.current.getContext("2d");
-      if (context) {
+      if (context && !drawingToGuess) {
         setCtx(context);
       }
     }
-  }, [ref]);
+  }, [ref, drawingToGuess]);
 
   return (
     <div className="relative flex flex-col w-full h-full">
