@@ -2,11 +2,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAddDrawing, useAddEntry, useGame } from "../queries/games";
 import { useEffect, useRef, useState } from "react";
-import { FindRankOfPlayer, isDrawingRound } from "../utils/helpers";
+import {
+  displayTime,
+  FindRankOfPlayer,
+  isDrawingRound,
+} from "../utils/helpers";
 import { socket } from "../utils/socket";
 import DevButton from "./DevButton";
 import DrawingBoard from "./DrawingBoard";
 import { DrawStep } from "../utils/types";
+
+const MAX_TIME = 240 as const;
 
 // TODO: Make a useContext for the game stuff (canvas, ctx, ref, game object, etc)
 function GamePage() {
@@ -28,6 +34,8 @@ function GamePage() {
   const [canvasHeight, setCanvasHeight] = useState(
     (window.innerHeight * 2) / 3
   );
+  const [timer, setTimer] = useState(0);
+  const timerStart = useRef(Date.now());
 
   const [entryCount, setEntryCount] = useState(0);
   const [entry, setEntry] = useState("");
@@ -84,12 +92,26 @@ function GamePage() {
     });
     socket.on("round-content", async (contentS: string) => {
       // Socket starting the round (drawing/guess)
-      // TODO: start timer
       await query.invalidateQueries({ queryKey: ["game", roomId] });
       const content = JSON.parse(contentS) as {
         content: string;
         kind: "drawings" | "guesses";
+        time: number;
       };
+
+      // TIMER
+      const ii = localStorage.getItem("timer");
+      if (!!ii) {
+        console.log("CLEAR OLD TIMER");
+        clearInterval(Number(ii));
+        setTimer(0);
+      }
+      console.log("START NEW TIMER");
+      const i = setInterval(() => {
+        const diff = (Date.now() - content.time) / 1000;
+        setTimer(Math.floor(diff));
+      }, 1000);
+      localStorage.setItem("timer", i + "");
 
       if (content.kind === "drawings") {
         setDrawingToGuess(content.content);
@@ -113,7 +135,7 @@ function GamePage() {
   useEffect(() => {
     if (data && data.players.length < data.round) {
       console.log("GAME IS DONE");
-      navigate(`/game-time/${roomId}/end`);
+      // navigate(`/game-time/${roomId}/end`);
     }
   }, [data?.round]);
 
@@ -125,6 +147,29 @@ function GamePage() {
       }
     }
   }, [ref, drawingToGuess]);
+
+  // TIMER UPDATES
+  useEffect(() => {
+    if (timer >= MAX_TIME) {
+      const inter = Number(localStorage.getItem("timer") ?? "0");
+      clearInterval(inter);
+
+      // TODO: send current guess or drawing depending on round
+      console.log("REACHED TIME LIMIT");
+    }
+  }, [timer]);
+  const timerRef = useRef(false);
+  useEffect(() => {
+    if (timer === 0 && !timerRef.current) {
+      console.log("INIT TIMER");
+      const i = setInterval(() => {
+        const diff = (Date.now() - timerStart.current) / 1000;
+        setTimer(Math.floor(diff));
+      }, 1000);
+      localStorage.setItem("timer", i + "");
+      timerRef.current = true;
+    }
+  }, []);
 
   return (
     <div className="relative flex flex-col w-full h-full">
@@ -139,6 +184,7 @@ function GamePage() {
           <h2 className="font-semibold text-xl">
             ({entryCount}/{data?.players.length ?? 0} players)
           </h2>
+          <p>{displayTime(MAX_TIME - timer)}</p>
         </div>
 
         <DrawingBoard

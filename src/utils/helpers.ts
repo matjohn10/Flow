@@ -154,3 +154,18 @@ export function drawStep(
     }
   });
 }
+
+export function displayTime(time: number): string {
+  let sec_num = time; // don't forget the second param
+  let minutes = Math.floor(sec_num / 60);
+  let seconds = sec_num - minutes * 60;
+  let min = minutes + "";
+  let sec = seconds + "";
+  if (minutes < 10) {
+    min = "0" + minutes;
+  }
+  if (seconds < 10) {
+    sec = "0" + seconds;
+  }
+  return min + ":" + sec;
+}
