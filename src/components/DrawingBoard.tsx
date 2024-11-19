@@ -307,7 +307,7 @@ function DrawingBoard({
         currentTool={currentTool}
         setCurrentTool={setCurrentTool}
       />
-      <DevButton
+      {/* <DevButton
         className="absolute top-4 right-2"
         text="Canvas Data"
         func={() => {
@@ -321,7 +321,7 @@ function DrawingBoard({
           //   console.log(d);
           // });
         }}
-      />
+      /> */}
     </div>
   );
 }

@@ -118,8 +118,6 @@ export function drawStep(
   step.forEach((m) => {
     if (m.kind === "start") {
       ctx.moveTo(m.x - elementRect.left, m.y - elementRect.top);
-      ctx.fillStyle = "red";
-      ctx.fillRect(m.x - elementRect.left, m.y - elementRect.top, 10, 10);
     } else {
       ctx.strokeStyle = m.color;
       ctx.lineWidth = m.strokeWidth;

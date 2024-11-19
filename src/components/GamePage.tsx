@@ -12,7 +12,7 @@ import DevButton from "./DevButton";
 import DrawingBoard from "./DrawingBoard";
 import { DrawStep } from "../utils/types";
 
-const MAX_TIME = 240 as const;
+const MAX_TIME = 600 as const;
 
 // TODO: Make a useContext for the game stuff (canvas, ctx, ref, game object, etc)
 function GamePage() {
@@ -135,7 +135,7 @@ function GamePage() {
   useEffect(() => {
     if (data && data.players.length < data.round) {
       console.log("GAME IS DONE");
-      // navigate(`/game-time/${roomId}/end`);
+      //navigate(`/game-time/${roomId}/end`);
     }
   }, [data?.round]);
 
@@ -154,7 +154,12 @@ function GamePage() {
       const inter = Number(localStorage.getItem("timer") ?? "0");
       clearInterval(inter);
 
-      // TODO: send current guess or drawing depending on round
+      // Send current guess or drawing depending on round
+      if (isDrawingRound(data?.round)) {
+        handleDrawingSubmit();
+      } else {
+        handleEntrySubmit();
+      }
       console.log("REACHED TIME LIMIT");
     }
   }, [timer]);
@@ -226,7 +231,7 @@ function GamePage() {
             <button
               className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded"
               onClick={handleEntrySubmit}
-              disabled={!data}
+              disabled={!data || isPending || isDrawingPending}
             >
               {!entrySent ? (isPending ? "Saving..." : "Submit") : "Done!"}
             </button>
