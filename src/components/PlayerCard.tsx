@@ -1,4 +1,5 @@
 import { Player } from "../queries/games";
+import { textColorFromBGHex } from "../utils/helpers";
 
 interface props {
   player: Player;
@@ -16,7 +17,12 @@ function PlayerCard({ player }: props) {
         className="w-12 h-12"
       />
 
-      <h2 className="text-md font-semibold">{player.username}</h2>
+      <h2
+        style={{ color: textColorFromBGHex(player.color) }}
+        className="text-md font-semibold"
+      >
+        {player.username}
+      </h2>
     </div>
   );
 }

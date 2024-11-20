@@ -94,7 +94,7 @@ function WaitPage() {
     navigate(`/game-time/${roomId}/play`);
     socket.emit("game-started", roomId);
   }
-
+  // TODO: Fix the ugly player grid, make list instead maybe
   return (
     <div className="relative flex flex-col w-full h-full items-center p-20 gap-3">
       <div

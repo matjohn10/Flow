@@ -167,3 +167,20 @@ export function displayTime(time: number): string {
   }
   return min + ":" + sec;
 }
+
+// if (red*0.299 + green*0.587 + blue*0.114) > 186 use #000000 else use #ffffff
+export function textColorFromBGHex(bg: string): "#000000" | "#ffffff" {
+  if (bg.length !== 7) {
+    console.error("textColorFromBGHex - wrong color format");
+    return "#000000";
+  }
+  let hex = bg.slice(1);
+  let total = 0;
+  for (let i = 0; i < hex.length; i += 2) {
+    if (i === 0) total += parseInt(hex.slice(i, i + 2), 16) * 0.299;
+    else if (i === 2) total += parseInt(hex.slice(i, i + 2), 16) * 0.587;
+    else total += parseInt(hex.slice(i, i + 2), 16) * 0.114;
+  }
+
+  return total >= 150 ? "#000000" : "#ffffff";
+}

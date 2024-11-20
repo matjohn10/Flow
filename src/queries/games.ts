@@ -6,6 +6,13 @@ type Game = {
   round: number;
   gameId?: string | null | undefined;
 };
+
+type FullGame = Game & {
+  content: {
+    guesses: string[];
+    drawings: string[];
+  }[];
+};
 export type Player = {
   playerId: string;
   username: string;
@@ -22,6 +29,19 @@ export const useGame = (id: string) => {
       });
       const data = await res.json();
       return data as Game;
+    },
+  });
+};
+
+export const useGameTest = () => {
+  return useQuery({
+    queryKey: ["game-test"],
+    queryFn: async () => {
+      const res = await fetch("http://localhost:8000/tests/game", {
+        method: "GET",
+      });
+      const data = await res.json();
+      return data as FullGame;
     },
   });
 };

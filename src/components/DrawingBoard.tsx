@@ -27,8 +27,6 @@ interface props {
   drawingToGuess: string | null;
 }
 
-// TODO: REFACTOR TO SHOW IMAGE OF OTHERS CANVAS INSTEAD OF REDRAWING
-
 function DrawingBoard({
   round,
   drawingStack,

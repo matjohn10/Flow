@@ -1,3 +1,5 @@
+import { Player } from "../queries/games";
+
 export type DrawMove = {
   kind: "start" | "move";
   tool: Tool;
@@ -17,4 +19,8 @@ export type WindowSize = {
 };
 
 export type Tool = "pen" | "eraser" | "square" | "circle" | "line" | "picker";
-//export const Draggables: Tool[] = ["square", "circle", "line"] as const;
+
+export type ShowingContent = {
+  content: string;
+  from: Player;
+};
