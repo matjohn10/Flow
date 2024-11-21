@@ -135,7 +135,7 @@ function GamePage() {
   useEffect(() => {
     if (data && data.players.length < data.round) {
       console.log("GAME IS DONE");
-      //navigate(`/game-time/${roomId}/end`);
+      navigate(`/game-time/${roomId}/end`);
     }
   }, [data?.round]);
 

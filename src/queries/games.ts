@@ -33,6 +33,19 @@ export const useGame = (id: string) => {
   });
 };
 
+export const useFullGame = (id: string) => {
+  return useQuery({
+    queryKey: ["game", "full", id],
+    queryFn: async () => {
+      const res = await fetch("http://localhost:8000/game/full/" + id, {
+        method: "GET",
+      });
+      const data = await res.json();
+      return data as FullGame;
+    },
+  });
+};
+
 export const useGameTest = () => {
   return useQuery({
     queryKey: ["game-test"],

@@ -21,6 +21,7 @@ export type WindowSize = {
 export type Tool = "pen" | "eraser" | "square" | "circle" | "line" | "picker";
 
 export type ShowingContent = {
+  id: number;
   content: string;
   from: Player;
 };

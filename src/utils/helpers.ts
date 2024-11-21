@@ -184,3 +184,7 @@ export function textColorFromBGHex(bg: string): "#000000" | "#ffffff" {
 
   return total >= 150 ? "#000000" : "#ffffff";
 }
+
+export function randomNumber(min: number = 0, max: number = 10000) {
+  return Math.random() * (max - min) + min;
+}
