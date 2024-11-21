@@ -192,7 +192,6 @@ function GameEnd() {
                   </div>
                 )
               )}
-              {/* TODO: Make only creator able to hover buttons */}
               {sliceShown === data?.players.length ? (
                 <></>
               ) : sliceShown % 2 === 0 ? (

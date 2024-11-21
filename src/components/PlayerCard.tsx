@@ -9,17 +9,17 @@ function PlayerCard({ player }: props) {
   return (
     <div
       style={{ backgroundColor: player.color }}
-      className="flex flex-col items-center justify-center w-24 h-24 rounded-md gap-1 p-2"
+      className="flex flex-row sm:flex-col items-center justify-center w-1/2 sm:w-24 sm:h-24 rounded-md gap-1 p-2"
     >
       <img
         src={`/avatars/${player.icon}.png`}
         alt={player.icon}
-        className="w-12 h-12"
+        className="w-8 h-8 sm:w-12 sm:h-12"
       />
 
       <h2
         style={{ color: textColorFromBGHex(player.color) }}
-        className="text-md font-semibold"
+        className="text-sm sm:text-md font-semibold"
       >
         {player.username}
       </h2>

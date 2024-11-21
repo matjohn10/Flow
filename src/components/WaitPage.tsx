@@ -94,7 +94,6 @@ function WaitPage() {
     navigate(`/game-time/${roomId}/play`);
     socket.emit("game-started", roomId);
   }
-  // TODO: Fix the ugly player grid, make list instead maybe
   return (
     <div className="relative flex flex-col w-full h-full items-center p-20 gap-3">
       <div
@@ -106,15 +105,15 @@ function WaitPage() {
       >
         <ArrowBigLeft color="white" className="w-12 h-10" />
       </div>
-      <h1 className="text-4xl font-bold">Game Room ({roomId})</h1>
+      <h1 className="text-2xl md:text-4xl font-bold">Game Room ({roomId})</h1>
       {!data ? (
-        <p className="text-3xl font-bold">Disconnected</p>
+        <p className="text-xl md:text-3xl font-bold">Disconnected</p>
       ) : (
         <>
           <p className="text-sm">
-            Minimum players to play (4): {data?.players.length ?? 0}/8
+            Players ready to play (min 4): {data?.players.length ?? 0}/8
           </p>
-          <div className="flex flex-wrap w-1/2 gap-1">
+          <div className="flex flex-wrap justify-center w-4/5 md:w-1/2 gap-1">
             {/* TODO: Set back real players */}
             {TestPlayers.map((c) => {
               //data?.players
@@ -127,7 +126,7 @@ function WaitPage() {
               onClick={handleStartGame}
               //TODO: Re-enable disabling of button
               //disabled={(data?.players.length ?? 0) < 4}
-              className="bg-gray-50 rounded px-4 py-2 flex items-center justify-center text-black font-semibold hover:opacity-80 hover:cursor-pointer active:opacity-20 disabled:hover:opacity-90 disabled:cursor-default disabled:opacity-90"
+              className="bg-gray-50 rounded mt-4 px-4 py-2 flex items-center justify-center text-black font-semibold hover:opacity-80 hover:cursor-pointer active:opacity-20 disabled:hover:opacity-90 disabled:cursor-default disabled:opacity-90"
             >
               Start Game
             </button>

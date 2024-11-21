@@ -87,7 +87,7 @@ export const pixelToRGBA = (pixels: Uint8ClampedArray) => {
 };
 
 export function isDrawingRound(round?: number) {
-  if (!round) return true;
+  if (!round) return true; // TODO: change back to false when done testing
   return round % 2 === 0;
 }
 

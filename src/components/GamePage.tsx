@@ -12,9 +12,9 @@ import DevButton from "./DevButton";
 import DrawingBoard from "./DrawingBoard";
 import { DrawStep } from "../utils/types";
 
-const MAX_TIME = 600 as const;
+const MAX_GUESS = 90 as const;
+const MAX_DRAW = 300 as const;
 
-// TODO: Make a useContext for the game stuff (canvas, ctx, ref, game object, etc)
 function GamePage() {
   const query = useQueryClient();
   const params = useParams();
@@ -131,6 +131,10 @@ function GamePage() {
     };
   }, [ctx]);
 
+  function getRoundTime(): number {
+    return (data?.round ?? 0) % 2 === 0 ? MAX_DRAW : MAX_GUESS;
+  }
+
   // END GAME
   useEffect(() => {
     if (data && data.players.length < data.round) {
@@ -150,7 +154,7 @@ function GamePage() {
 
   // TIMER UPDATES
   useEffect(() => {
-    if (timer >= MAX_TIME) {
+    if (timer >= getRoundTime()) {
       const inter = Number(localStorage.getItem("timer") ?? "0");
       clearInterval(inter);
 
@@ -189,7 +193,7 @@ function GamePage() {
           <h2 className="font-semibold text-xl">
             ({entryCount}/{data?.players.length ?? 0} players)
           </h2>
-          <p>{displayTime(MAX_TIME - timer)}</p>
+          <p>{displayTime(getRoundTime() - timer)}</p>
         </div>
 
         <DrawingBoard
