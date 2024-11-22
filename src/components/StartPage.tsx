@@ -3,18 +3,7 @@ import { socket } from "../utils/socket";
 import { useNavigate } from "react-router-dom";
 import { ArrowBigLeft, CircleCheckBig, CircleX } from "lucide-react";
 import PlayerChooseAvatar from "./PlayerChooseAvatar";
-
-const ICONS = [
-  "lion",
-  "cat",
-  "fox",
-  "unicorn",
-  "bunny",
-  "horse",
-  "tiger",
-  "bear",
-  "elephant",
-] as const;
+import { ICONS } from "../constants";
 
 function StartPage() {
   const [username, setUsername] = useState("");

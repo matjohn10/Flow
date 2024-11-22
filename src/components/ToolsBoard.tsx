@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Tool } from "../utils/types";
 import { isMobile } from "react-device-detect";
+import { TOOLS } from "../constants";
 
 interface props {
   undo: () => void;
@@ -31,78 +32,20 @@ function ToolsBoard({
 }: props) {
   return (
     <div className="flex flex-wrap w-full md:w-1/6 xl:w-[12%] justify-center h-auto bg-red-100 rounded-lg p-3 gap-3">
-      <div
-        onClick={() => setCurrentTool("pen")}
-        style={{
-          border:
-            currentTool === "pen"
-              ? `${isMobile ? 2 : 4}px solid #AF1740`
-              : `${isMobile ? 0 : 4}px solid black`,
-        }}
-        className="flex justify-center items-center w-[5%] md:w-2/5 aspect-square border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20"
-      >
-        <Pen size={32} color="black" strokeWidth={2} />
-      </div>
-      <div
-        onClick={() => setCurrentTool("eraser")}
-        style={{
-          border:
-            currentTool === "eraser"
-              ? `${isMobile ? 2 : 4}px solid #AF1740`
-              : `${isMobile ? 0 : 4}px solid black`,
-        }}
-        className="flex justify-center items-center w-[5%] md:w-2/5 aspect-square border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20"
-      >
-        <Eraser size={32} color="black" strokeWidth={2} />
-      </div>
-      <div
-        onClick={() => setCurrentTool("square")}
-        style={{
-          border:
-            currentTool === "square"
-              ? `${isMobile ? 2 : 4}px solid #AF1740`
-              : `${isMobile ? 0 : 4}px solid black`,
-        }}
-        className="flex justify-center items-center w-[5%] md:w-2/5 aspect-square border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20"
-      >
-        <Square size={32} color="black" strokeWidth={2} />
-      </div>
-      <div
-        onClick={() => setCurrentTool("circle")}
-        style={{
-          border:
-            currentTool === "circle"
-              ? `${isMobile ? 2 : 4}px solid #AF1740`
-              : `${isMobile ? 0 : 4}px solid black`,
-        }}
-        className="flex justify-center items-center w-[5%] md:w-2/5 aspect-square border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20"
-      >
-        <Circle size={32} color="black" strokeWidth={2} />
-      </div>
-      <div
-        onClick={() => setCurrentTool("line")}
-        style={{
-          border:
-            currentTool === "line"
-              ? `${isMobile ? 2 : 4}px solid #AF1740`
-              : `${isMobile ? 0 : 4}px solid black`,
-        }}
-        className="flex justify-center items-center w-[5%] md:w-2/5 aspect-square border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20"
-      >
-        <Minus size={32} color="black" strokeWidth={2} />
-      </div>
-      <div
-        onClick={() => setCurrentTool("picker")}
-        style={{
-          border:
-            currentTool === "picker"
-              ? `${isMobile ? 2 : 4}px solid #AF1740`
-              : `${isMobile ? 0 : 4}px solid black`,
-        }}
-        className="flex justify-center items-center w-[5%] md:w-2/5 aspect-square border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20"
-      >
-        <Pipette size={32} color="black" strokeWidth={2} />
-      </div>
+      {TOOLS.map((t) => (
+        <div
+          onClick={() => setCurrentTool(t.name)}
+          style={{
+            border:
+              currentTool === t.name
+                ? `${isMobile ? 2 : 4}px solid #AF1740`
+                : `${isMobile ? 0 : 4}px solid black`,
+          }}
+          className="flex justify-center items-center w-[5%] md:w-2/5 aspect-square border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20"
+        >
+          <t.Icon size={t.size} color={t.color} strokeWidth={t.stroke} />
+        </div>
+      ))}
       <div
         onClick={() => undo()}
         style={{

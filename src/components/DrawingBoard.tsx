@@ -6,14 +6,11 @@ import {
   drawStep,
   isDrawingRound,
   pixelToRGBA,
-  ratioCanvas,
   rgbaToHex,
   setLineProperties,
 } from "../utils/helpers";
 import { isMobile } from "react-device-detect";
-
-const MAIN_MOUSE_BUTTON = 0 as const;
-const CANVAS_COLOR = "#f9fafb" as const;
+import { CANVAS_COLOR, MAIN_MOUSE_BUTTON } from "../constants";
 
 interface props {
   round?: number;
@@ -23,8 +20,6 @@ interface props {
   ctx: CanvasRenderingContext2D | undefined;
   width: number;
   height: number;
-  setWidth: React.Dispatch<React.SetStateAction<number>>;
-  setHeight: React.Dispatch<React.SetStateAction<number>>;
   drawingToGuess: string | null;
 }
 
@@ -36,8 +31,6 @@ function DrawingBoard({
   ctx,
   width,
   height,
-  setWidth,
-  setHeight,
   drawingToGuess,
 }: props) {
   const [color, setColor] = useState("#181C14"); // default -> black
@@ -48,23 +41,6 @@ function DrawingBoard({
   const [undoStack, setUndoStack] = useState<DrawStep[]>([]);
   const [currDrawMove, setCurrDrawMove] = useState<DrawMove[]>([]);
 
-  // window.addEventListener("resize", function () {
-  //   const ratio = window.innerWidth / window.screen.width;
-
-  //   if (ratio <= 3 / 6) {
-  //     setWidth(window.innerWidth);
-  //     setHeight(ratioCanvas(window.innerWidth, false));
-  //   } else if (ratio < 4 / 6) {
-  //     setWidth(window.innerWidth / 1.8);
-  //     setHeight(ratioCanvas(this.window.innerWidth / 1.8, false));
-  //   } else if (ratio < 5 / 6) {
-  //     setWidth(window.innerWidth / 1.55);
-  //     setHeight(ratioCanvas(this.window.innerWidth / 1.55, false));
-  //   } else {
-  //     setWidth(window.innerWidth / 2);
-  //     setHeight(ratioCanvas(this.window.innerWidth / 2, false));
-  //   }
-  // });
   function dragAndDraw(x: number, y: number, elementRect?: DOMRect) {
     if (isDrawing && !!ctx && !!refC.current) {
       ctx.clearRect(0, 0, width, height);
@@ -283,7 +259,6 @@ function DrawingBoard({
     setDrawingStack(newDrawStack);
   }
 
-  // TODO: Make clean resizing UI for canvas
   return (
     <div className="relative flex flex-col md:flex-row justify-center items-center w-full h-2/3 gap-8">
       <ColorsBoard currColor={color} setColor={setColor} />

@@ -3,7 +3,10 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; */
+  /* font-family: "Funnel Display", sans-serif; */
+  font-family: "Chewy", system-ui;
+  font-optical-sizing: auto;
   line-height: 1.5;
   font-weight: 400;
 
@@ -15,6 +18,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: "Funnel Display", sans-serif;
+  font-weight: 600;
 }
 
 #root,

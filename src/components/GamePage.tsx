@@ -11,15 +11,8 @@ import {
 import { socket } from "../utils/socket";
 import DrawingBoard from "./DrawingBoard";
 import { DrawStep } from "../utils/types";
-import {
-  BrowserView,
-  MobileView,
-  isBrowser,
-  isMobile,
-} from "react-device-detect";
-
-const MAX_GUESS = 90 as const;
-const MAX_DRAW = 300 as const;
+import { isMobile } from "react-device-detect";
+import { MAX_DRAW, MAX_GUESS } from "../constants";
 
 function GamePage() {
   const query = useQueryClient();
@@ -232,8 +225,6 @@ function GamePage() {
                 : window.innerWidth / 2,
               false
             )}
-            setWidth={setCanvasWidth}
-            setHeight={setCanvasHeight}
             round={data?.round}
             drawingStack={drawingStack}
             setDrawingStack={setDrawingStack}
