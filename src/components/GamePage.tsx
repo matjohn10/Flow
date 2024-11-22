@@ -6,11 +6,17 @@ import {
   displayTime,
   FindRankOfPlayer,
   isDrawingRound,
+  ratioCanvas,
 } from "../utils/helpers";
 import { socket } from "../utils/socket";
-import DevButton from "./DevButton";
 import DrawingBoard from "./DrawingBoard";
 import { DrawStep } from "../utils/types";
+import {
+  BrowserView,
+  MobileView,
+  isBrowser,
+  isMobile,
+} from "react-device-detect";
 
 const MAX_GUESS = 90 as const;
 const MAX_DRAW = 300 as const;
@@ -29,10 +35,10 @@ function GamePage() {
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
   const [drawingStack, setDrawingStack] = useState<DrawStep[]>([]);
   const [canvasWidth, setCanvasWidth] = useState(
-    ((4 / 3) * window.innerHeight * 2) / 3
+    isMobile ? window.innerWidth : window.innerWidth / 2
   );
   const [canvasHeight, setCanvasHeight] = useState(
-    (window.innerHeight * 2) / 3
+    ratioCanvas(isMobile ? window.innerWidth : window.innerWidth / 2, false)
   );
   const [timer, setTimer] = useState(0);
   const timerStart = useRef(Date.now());
@@ -74,6 +80,13 @@ function GamePage() {
     setDrawingStack([]);
     setDrawingToGuess(null);
   };
+
+  // useEffect(() => {
+  //   setCanvasWidth(isMobile ? window.innerWidth : window.innerWidth / 2);
+  //   setCanvasHeight(
+  //     ratioCanvas(isMobile ? window.innerWidth : window.innerWidth / 2, false)
+  //   );
+  // }, [innerWidth, innerHeight]);
 
   useEffect(() => {
     socket.on("num-entry", (num: number) => {
@@ -181,67 +194,86 @@ function GamePage() {
   }, []);
 
   return (
-    <div className="relative flex flex-col w-full h-full">
-      <DevButton
-        className="absolute top-4 left-4 bg-gray-50 text-black"
-        text="Menu"
-        func={() => navigate("/game")}
-      />
-      <div className="flex flex-col w-full h-full items-center justify-center gap-2">
-        <div className="flex w-full justify-center items-center gap-4">
-          <h1 className="font-semibold text-4xl">Round {data?.round ?? 0}</h1>
-          <h2 className="font-semibold text-xl">
-            ({entryCount}/{data?.players.length ?? 0} players)
-          </h2>
-          <p>{displayTime(getRoundTime() - timer)}</p>
+    <div
+      style={{ position: "fixed" }}
+      className="relative flex flex-col w-full h-full overflow-hidden overflow-x-hidden"
+    >
+      {isMobile && innerWidth > 500 ? (
+        <div className="w-full h-full flex justify-center items-center text-4xl font-bold">
+          Cannot use landscape mode.
         </div>
+      ) : (
+        <div className="flex flex-col w-full h-full items-center justify-center gap-2">
+          <div className="flex w-full justify-center items-center gap-4 mb-6 lg:mb-0 px-4">
+            <h1 className="font-semibold text-2xl lg:text-4xl">
+              Round {data?.round ?? 0}
+            </h1>
+            <h2 className="hidden lg:block font-semibold text-xl">
+              ({entryCount}/{data?.players.length ?? 0} players)
+            </h2>
+            <p>{displayTime(getRoundTime() - timer)}</p>
+          </div>
 
-        <DrawingBoard
-          refC={ref}
-          ctx={ctx}
-          width={canvasWidth}
-          height={canvasHeight}
-          setWidth={setCanvasWidth}
-          setHeight={setCanvasHeight}
-          round={data?.round}
-          drawingStack={drawingStack}
-          setDrawingStack={setDrawingStack}
-          drawingToGuess={drawingToGuess}
-        />
-
-        <div className="flex w-full justify-center items-center gap-4">
-          <input
-            className="font-semibold text-lg bg-gray-50 text-black p-2 rounded-lg w-1/3"
-            maxLength={36}
-            placeholder="Write word/guess here..."
-            disabled={!data || isDrawingRound(data.round)}
-            type="text"
-            value={entry}
-            onChange={(e) => setEntry(e.currentTarget.value)}
+          <DrawingBoard
+            refC={ref}
+            ctx={ctx}
+            width={
+              isMobile
+                ? window.innerWidth
+                : window.innerWidth > 2000
+                ? window.innerWidth / 2.5
+                : window.innerWidth / 2
+            }
+            height={ratioCanvas(
+              isMobile
+                ? window.innerWidth
+                : window.innerWidth > 2000
+                ? window.innerWidth / 2.5
+                : window.innerWidth / 2,
+              false
+            )}
+            setWidth={setCanvasWidth}
+            setHeight={setCanvasHeight}
+            round={data?.round}
+            drawingStack={drawingStack}
+            setDrawingStack={setDrawingStack}
+            drawingToGuess={drawingToGuess}
           />
-          {isDrawingRound(data?.round) ? (
-            <button
-              className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded"
-              disabled={!data}
-              onClick={handleDrawingSubmit}
-            >
-              {!entrySent
-                ? isDrawingPending
-                  ? "Saving..."
-                  : "Submit Drawing"
-                : "Done!"}
-            </button>
-          ) : (
-            <button
-              className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded"
-              onClick={handleEntrySubmit}
-              disabled={!data || isPending || isDrawingPending}
-            >
-              {!entrySent ? (isPending ? "Saving..." : "Submit") : "Done!"}
-            </button>
-          )}
+
+          <div className="flex flex-col sm:flex-row w-full justify-center items-center gap-4 mt-4">
+            <input
+              className="font-semibold text-lg bg-gray-50 text-black p-2 rounded-lg w-4/5 sm:w-1/3"
+              maxLength={36}
+              placeholder="Write word/guess here..."
+              disabled={!data || isDrawingRound(data.round)}
+              type="text"
+              value={entry}
+              onChange={(e) => setEntry(e.currentTarget.value)}
+            />
+            {isDrawingRound(data?.round) ? (
+              <button
+                className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded"
+                disabled={!data}
+                onClick={handleDrawingSubmit}
+              >
+                {!entrySent
+                  ? isDrawingPending
+                    ? "Saving..."
+                    : "Submit Drawing"
+                  : "Done!"}
+              </button>
+            ) : (
+              <button
+                className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded"
+                onClick={handleEntrySubmit}
+                disabled={!data || isPending || isDrawingPending}
+              >
+                {!entrySent ? (isPending ? "Saving..." : "Submit") : "Done!"}
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

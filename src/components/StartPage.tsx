@@ -2,6 +2,19 @@ import { useEffect, useState } from "react";
 import { socket } from "../utils/socket";
 import { useNavigate } from "react-router-dom";
 import { ArrowBigLeft, CircleCheckBig, CircleX } from "lucide-react";
+import PlayerChooseAvatar from "./PlayerChooseAvatar";
+
+const ICONS = [
+  "lion",
+  "cat",
+  "fox",
+  "unicorn",
+  "bunny",
+  "horse",
+  "tiger",
+  "bear",
+  "elephant",
+] as const;
 
 function StartPage() {
   const [username, setUsername] = useState("");
@@ -35,9 +48,6 @@ function StartPage() {
     localStorage.setItem("player", playerString);
     socket.emit("join-room", JSON.stringify({ player, roomId: roomToJoin }));
   };
-
-  const baseStyle =
-    "flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20";
   return (
     <div className="flex flex-col w-full h-full items-center gap-4 p-10 relative">
       <div
@@ -46,8 +56,8 @@ function StartPage() {
       >
         <ArrowBigLeft color="white" className="w-12 h-10" />
       </div>
-      <h1 className="font-extrabold text-5xl">Start a game!</h1>
-      <div className="flex flex-col w-1/4 items-start gap-3">
+      <h1 className="font-extrabold text-4xl md:text-5xl">Start a game!</h1>
+      <div className="flex flex-col w-full sm:w-1/2 xl:w-1/4 items-start gap-3">
         <div className="flex flex-col w-full items-center">
           <input
             placeholder="Username"
@@ -58,7 +68,7 @@ function StartPage() {
             className="w-full p-2 rounded bg-gray-200 text-black font-semibold"
           />
         </div>
-        <div className="flex w-full items-center gap-4">
+        <div className="flex w-full items-center justify-center gap-4">
           <label htmlFor="player-color" className="font-semibold">
             Choose a color
           </label>
@@ -70,72 +80,16 @@ function StartPage() {
             className="bg-transparent"
           />
         </div>
-        <div className="flex flex-wrap w-full h-full">
-          <div
-            onClick={() => setIcon("lion")}
-            style={{ backgroundColor: icon === "lion" ? color : "#242424" }}
-            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
-          >
-            <img src="/avatars/lion.png" className="w-full h-full" />
-          </div>
-          <div
-            onClick={() => setIcon("cat")}
-            style={{ backgroundColor: icon === "cat" ? color : "#242424" }}
-            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
-          >
-            <img src="/avatars/cat.png" />
-          </div>
-
-          <div
-            onClick={() => setIcon("fox")}
-            style={{ backgroundColor: icon === "fox" ? color : "#242424" }}
-            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
-          >
-            <img src="/avatars/fox.png" />
-          </div>
-          <div
-            onClick={() => setIcon("unicorn")}
-            style={{ backgroundColor: icon === "unicorn" ? color : "#242424" }}
-            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
-          >
-            <img src="/avatars/unicorn.png" className="w-full h-full" />
-          </div>
-          <div
-            onClick={() => setIcon("bunny")}
-            style={{ backgroundColor: icon === "bunny" ? color : "#242424" }}
-            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
-          >
-            <img src="/avatars/bunny.png" className="w-full h-full" />
-          </div>
-          <div
-            onClick={() => setIcon("horse")}
-            style={{ backgroundColor: icon === "horse" ? color : "#242424" }}
-            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
-          >
-            <img src="/avatars/horse.png" className="w-full h-full" />
-          </div>
-          <div
-            onClick={() => setIcon("tiger")}
-            style={{ backgroundColor: icon === "tiger" ? color : "#242424" }}
-            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
-          >
-            <img src="/avatars/tiger.png" />
-          </div>
-          <div
-            onClick={() => setIcon("bear")}
-            style={{ backgroundColor: icon === "bear" ? color : "#242424" }}
-            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
-          >
-            <img src="/avatars/bear.png" />
-          </div>
-
-          <div
-            onClick={() => setIcon("elephant")}
-            style={{ backgroundColor: icon === "elephant" ? color : "#242424" }}
-            className="flex w-1/3 aspect-square justify-center items-center rounded-lg hover:opacity-75 hover:cursor-pointer active:opacity-20"
-          >
-            <img src="/avatars/elephant.png" className="w-full h-full" />
-          </div>
+        <div className="flex justify-center flex-wrap w-full h-full">
+          {ICONS.map((i) => (
+            <PlayerChooseAvatar
+              key={i}
+              name={i}
+              color={color}
+              icon={icon}
+              setIcon={setIcon}
+            />
+          ))}
         </div>
       </div>
       {!error ? (
@@ -145,7 +99,7 @@ function StartPage() {
           This game ID does not exist. Please try another one.
         </div>
       )}
-      <div className="flex w-3/4 justify-center gap-10">
+      <div className="flex w-3/4 justify-center gap-10 mt-4">
         <div className="flex items-center gap-1">
           <button
             onClick={!pressed ? () => setPressed((prev) => !prev) : handleJoin}

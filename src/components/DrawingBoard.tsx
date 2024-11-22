@@ -1,5 +1,4 @@
 import { useState } from "react";
-import DevButton from "./DevButton";
 import { DrawMove, DrawStep, Tool } from "../utils/types";
 import ToolsBoard from "./ToolsBoard";
 import ColorsBoard from "./ColorsBoard";
@@ -7,9 +6,11 @@ import {
   drawStep,
   isDrawingRound,
   pixelToRGBA,
+  ratioCanvas,
   rgbaToHex,
   setLineProperties,
 } from "../utils/helpers";
+import { isMobile } from "react-device-detect";
 
 const MAIN_MOUSE_BUTTON = 0 as const;
 const CANVAS_COLOR = "#f9fafb" as const;
@@ -47,19 +48,55 @@ function DrawingBoard({
   const [undoStack, setUndoStack] = useState<DrawStep[]>([]);
   const [currDrawMove, setCurrDrawMove] = useState<DrawMove[]>([]);
 
-  window.addEventListener("resize", function () {
-    if (window.innerWidth < (window.screen.width * 2) / 5) {
-      setWidth(((4 / 3) * window.innerHeight * 2) / 5);
-      setHeight((window.innerHeight * 2) / 5);
-    } else if (window.innerWidth < window.screen.width / 2) {
-      setWidth(((4 / 3) * window.innerHeight * 1) / 2);
-      setHeight((window.innerHeight * 1) / 2);
-    } else {
-      setWidth(((4 / 3) * window.innerHeight * 2) / 3);
-      setHeight((window.innerHeight * 2) / 3);
-    }
-  });
+  // window.addEventListener("resize", function () {
+  //   const ratio = window.innerWidth / window.screen.width;
 
+  //   if (ratio <= 3 / 6) {
+  //     setWidth(window.innerWidth);
+  //     setHeight(ratioCanvas(window.innerWidth, false));
+  //   } else if (ratio < 4 / 6) {
+  //     setWidth(window.innerWidth / 1.8);
+  //     setHeight(ratioCanvas(this.window.innerWidth / 1.8, false));
+  //   } else if (ratio < 5 / 6) {
+  //     setWidth(window.innerWidth / 1.55);
+  //     setHeight(ratioCanvas(this.window.innerWidth / 1.55, false));
+  //   } else {
+  //     setWidth(window.innerWidth / 2);
+  //     setHeight(ratioCanvas(this.window.innerWidth / 2, false));
+  //   }
+  // });
+  function dragAndDraw(x: number, y: number, elementRect?: DOMRect) {
+    if (isDrawing && !!ctx && !!refC.current) {
+      ctx.clearRect(0, 0, width, height);
+      drawingStack.forEach((d) => drawStep(ctx, d, refC, strokeWidth, color));
+      var widthShape = elementRect
+        ? x - elementRect.left
+        : x - currDrawMove[0].x;
+      var heightShape = elementRect
+        ? y - elementRect.top
+        : y - currDrawMove[0].y;
+      const move: DrawMove = {
+        kind: "move",
+        tool: currentTool,
+        x: currDrawMove[0].x,
+        y: currDrawMove[0].y,
+        width: widthShape,
+        height: heightShape,
+        color,
+        strokeWidth,
+      };
+      if (currDrawMove.length === 1) {
+        const newMoves = [...currDrawMove, move];
+        drawStep(ctx, newMoves, refC, strokeWidth, color);
+        setCurrDrawMove(newMoves);
+      } else {
+        const newMoves = [...currDrawMove];
+        newMoves[1] = move;
+        drawStep(ctx, newMoves, refC, strokeWidth, color);
+        setCurrDrawMove(newMoves);
+      }
+    }
+  }
   function start(event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
     if (event.button === MAIN_MOUSE_BUTTON && !!ctx && !!refC.current) {
       let elementRect = refC.current.getBoundingClientRect();
@@ -96,6 +133,88 @@ function DrawingBoard({
     }
   }
 
+  function startTouch(event: React.TouchEvent<HTMLCanvasElement>) {
+    if (!!ctx && !!refC.current) {
+      let elementRect = refC.current.getBoundingClientRect();
+      if (currentTool === "picker") {
+        const x = Math.floor(event.touches[0].clientX - elementRect.left) * 4;
+        const y = Math.floor(event.touches[0].clientY - elementRect.top) * 4;
+        const index = x + y * Math.floor(width);
+        const pixels = ctx
+          .getImageData(0, 0, Math.floor(width), Math.floor(height))
+          .data.slice(index, index + 4);
+        setColor(rgbaToHex(pixelToRGBA(pixels), true));
+      } else {
+        setLineProperties(ctx, strokeWidth, color);
+        3;
+        setIsDrawing(true);
+        ctx.beginPath();
+        ctx.moveTo(
+          event.touches[0].clientX - elementRect.left,
+          event.touches[0].clientY - elementRect.top
+        );
+        setCurrDrawMove([
+          {
+            kind: "start",
+            tool: currentTool,
+            x: event.touches[0].clientX,
+            y: event.touches[0].clientY,
+            width: 0,
+            height: 0,
+            color: currentTool === "eraser" ? CANVAS_COLOR : color,
+            strokeWidth,
+          },
+        ]);
+      }
+    }
+  }
+  function moveTouch(event: React.TouchEvent<HTMLCanvasElement>) {
+    if (isDrawing && !!ctx && !!refC.current) {
+      let elementRect = refC.current.getBoundingClientRect();
+      switch (currentTool) {
+        case "pen":
+        case "eraser":
+          ctx.lineTo(
+            event.touches[0].clientX - elementRect.left,
+            event.touches[0].clientY - elementRect.top
+          );
+          ctx.strokeStyle = currentTool === "pen" ? color : CANVAS_COLOR;
+          ctx.stroke();
+          // pen/eraser updates currdraw on each moves
+          setCurrDrawMove([
+            ...currDrawMove,
+            {
+              kind: "move",
+              tool: currentTool,
+              x: event.touches[0].clientX,
+              y: event.touches[0].clientY,
+              width: 0,
+              height: 0,
+              color: currentTool === "pen" ? color : CANVAS_COLOR,
+              strokeWidth,
+            },
+          ]);
+          break;
+        case "square":
+        case "circle":
+          dragAndDraw(event.touches[0].clientX, event.touches[0].clientY);
+          break;
+        case "line":
+          dragAndDraw(
+            event.touches[0].clientX,
+            event.touches[0].clientY,
+            elementRect
+          );
+          break;
+      }
+    }
+  }
+  function endTouch() {
+    setIsDrawing(false);
+    setDrawingStack([...drawingStack, currDrawMove]);
+    setCurrDrawMove([]);
+  }
+
   function end(event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
     if (event.button === MAIN_MOUSE_BUTTON && !!ctx && isDrawing) {
       setIsDrawing(false);
@@ -104,41 +223,6 @@ function DrawingBoard({
     }
   }
 
-  function dragAndDraw(
-    event: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-    elementRect?: DOMRect
-  ) {
-    if (isDrawing && !!ctx && !!refC.current) {
-      ctx.clearRect(0, 0, width, height);
-      drawingStack.forEach((d) => drawStep(ctx, d, refC, strokeWidth, color));
-      var widthShape = elementRect
-        ? event.clientX - elementRect.left
-        : event.clientX - currDrawMove[0].x;
-      var heightShape = elementRect
-        ? event.clientY - elementRect.top
-        : event.clientY - currDrawMove[0].y;
-      const move: DrawMove = {
-        kind: "move",
-        tool: currentTool,
-        x: currDrawMove[0].x,
-        y: currDrawMove[0].y,
-        width: widthShape,
-        height: heightShape,
-        color,
-        strokeWidth,
-      };
-      if (currDrawMove.length === 1) {
-        const newMoves = [...currDrawMove, move];
-        drawStep(ctx, newMoves, refC, strokeWidth, color);
-        setCurrDrawMove(newMoves);
-      } else {
-        const newMoves = [...currDrawMove];
-        newMoves[1] = move;
-        drawStep(ctx, newMoves, refC, strokeWidth, color);
-        setCurrDrawMove(newMoves);
-      }
-    }
-  }
   function move(event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
     event.preventDefault();
     if (isDrawing && !!ctx && !!refC.current) {
@@ -169,10 +253,10 @@ function DrawingBoard({
           break;
         case "square":
         case "circle":
-          dragAndDraw(event);
+          dragAndDraw(event.clientX, event.clientY);
           break;
         case "line":
-          dragAndDraw(event, elementRect);
+          dragAndDraw(event.clientX, event.clientY, elementRect);
           break;
       }
     }
@@ -199,8 +283,9 @@ function DrawingBoard({
     setDrawingStack(newDrawStack);
   }
 
+  // TODO: Make clean resizing UI for canvas
   return (
-    <div className="relative flex justify-center items-center w-full h-2/3 gap-8">
+    <div className="relative flex flex-col md:flex-row justify-center items-center w-full h-2/3 gap-8">
       <ColorsBoard currColor={color} setColor={setColor} />
       {drawingToGuess ? (
         <div style={{ width, height }} className="bg-gray-50 rounded">
@@ -215,6 +300,15 @@ function DrawingBoard({
           ref={refC}
           height={height}
           width={width}
+          onTouchStart={(e) => {
+            if (isDrawingRound(round) && isMobile) startTouch(e);
+          }}
+          onTouchMove={(e) => {
+            if (isDrawingRound(round) && isMobile) moveTouch(e);
+          }}
+          onTouchEnd={() => {
+            if (isDrawingRound(round) && isMobile) endTouch();
+          }}
           onMouseMove={(e) => {
             if (isDrawingRound(round)) move(e);
           }}
@@ -240,21 +334,6 @@ function DrawingBoard({
         currentTool={currentTool}
         setCurrentTool={setCurrentTool}
       />
-      {/* <DevButton
-        className="absolute top-4 right-2"
-        text="Canvas Data"
-        func={() => {
-          if (!ctx || !refC.current) return;
-          // console.log("DRAW STACK --");
-          // drawingStack.forEach((d) => {
-          //   console.log(d);
-          // });
-          // console.log("UNDO STACK --");
-          // undoStack.forEach((d) => {
-          //   console.log(d);
-          // });
-        }}
-      /> */}
     </div>
   );
 }

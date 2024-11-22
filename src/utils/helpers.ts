@@ -188,3 +188,8 @@ export function textColorFromBGHex(bg: string): "#000000" | "#ffffff" {
 export function randomNumber(min: number = 0, max: number = 10000) {
   return Math.random() * (max - min) + min;
 }
+
+export function ratioCanvas(width: number, reversed: boolean) {
+  // keep 16w/9h * scale ()
+  return reversed ? (width * 16) / 12 : (width * 12) / 16;
+}
