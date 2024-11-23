@@ -65,7 +65,7 @@ function StartPage() {
     socket.emit("join-room", JSON.stringify({ player, roomId: roomToJoin }));
   };
   return (
-    <div className="flex flex-col w-full h-full items-center gap-4 p-10 relative">
+    <div className="flex flex-col w-full h-full items-center gap-4 p-10 relative overflow-hidden">
       <div
         className="absolute w-10 h-10 left-10 hover:cursor-pointer"
         onClick={() => navigate("/")}

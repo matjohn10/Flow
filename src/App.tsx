@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 import { APP_NAME } from "./constants";
 import { isMobile } from "react-device-detect";
 
-// TODO: Make design
+// TODO: Add Terms&conditons + privacy policy + developer at bottoms
 function App() {
   return (
-    <div className="relative w-full h-full flex flex-col p-24 gap-4">
+    <div className="relative w-full h-full flex flex-col p-24 gap-4 overflow-hidden">
       <h1 className="font-extrabold text-7xl md:text-9xl">{APP_NAME}</h1>
 
       <p className="font-semibold text-2xl sm:text-4xl ml-4 md:ml-12">
