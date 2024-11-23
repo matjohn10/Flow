@@ -7,7 +7,9 @@ import { ParseToPlayer } from "../utils/helpers";
 import PlayerCard from "./PlayerCard";
 import { ArrowBigLeft } from "lucide-react";
 import { TestPlayers } from "../constants";
+import { isMobile } from "react-device-detect";
 
+// TODO: Add check for gameID, it not navigate to home page
 function WaitPage() {
   const query = useQueryClient();
   const params = useParams();
@@ -64,10 +66,9 @@ function WaitPage() {
             Players ready to play (min 4): {data?.players.length ?? 0}/8
           </p>
           <div className="flex flex-wrap justify-center w-4/5 md:w-1/2 gap-1">
-            {/* TODO: Set back real players */}
-            {TestPlayers.map((c) => {
-              //data?.players
-              const p = c; //ParseToPlayer(c);
+            {data?.players.map((c) => {
+              //
+              const p = ParseToPlayer(c); // p = c;
               return <PlayerCard player={p} key={p.playerId} />;
             })}
           </div>
@@ -76,7 +77,7 @@ function WaitPage() {
               onClick={handleStartGame}
               //TODO: Re-enable disabling of button
               //disabled={(data?.players.length ?? 0) < 4}
-              className="bg-gray-50 rounded mt-4 px-4 py-2 flex items-center justify-center text-black font-semibold hover:opacity-80 hover:cursor-pointer active:opacity-20 disabled:hover:opacity-90 disabled:cursor-default disabled:opacity-90"
+              className="bg-gray-50 rounded mt-4 px-4 py-2 flex items-center justify-center text-black font-semibold hover:opacity-80 hover:cursor-pointer active:opacity-20 disabled:hover:opacity-90 disabled:cursor-default disabled:opacity-90 shadow shadow-gray-800"
             >
               Start Game
             </button>
@@ -84,6 +85,19 @@ function WaitPage() {
             <></>
           )}
         </>
+      )}
+
+      {isMobile ? (
+        <div className="absolute -z-40 flex top-0 left-0 w-full h-full">
+          <img className="w-full object-cover" src="/bg-home.svg" alt="svg" />
+        </div>
+      ) : (
+        <div
+          style={{ width: window.innerWidth, height: window.innerHeight }}
+          className="absolute -right-[250px] -z-40 flex justify-center items-center"
+        >
+          <img className="w-full" src="/bg-home.svg" alt="svg" />
+        </div>
       )}
     </div>
   );

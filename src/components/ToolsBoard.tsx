@@ -1,14 +1,4 @@
-import {
-  Circle,
-  Dot,
-  Eraser,
-  Minus,
-  Pen,
-  Pipette,
-  Redo,
-  Square,
-  Undo,
-} from "lucide-react";
+import { Dot, Redo, Undo } from "lucide-react";
 import { Tool } from "../utils/types";
 import { isMobile } from "react-device-detect";
 import { TOOLS } from "../constants";
@@ -31,14 +21,14 @@ function ToolsBoard({
   setCurrentTool,
 }: props) {
   return (
-    <div className="flex flex-wrap w-full md:w-1/6 xl:w-[12%] justify-center h-auto bg-red-100 rounded-lg p-3 gap-3">
+    <div className="flex flex-wrap w-full md:w-1/6 xl:w-[12%] justify-center h-auto bg-gray-100 rounded-lg p-3 gap-3">
       {TOOLS.map((t) => (
         <div
           onClick={() => setCurrentTool(t.name)}
           style={{
             border:
               currentTool === t.name
-                ? `${isMobile ? 2 : 4}px solid #AF1740`
+                ? `${isMobile ? 2 : 4}px solid #b9466c`
                 : `${isMobile ? 0 : 4}px solid black`,
           }}
           className="flex justify-center items-center w-[5%] md:w-2/5 aspect-square border-gray-900 rounded-lg hover:bg-gray-100 hover:cursor-pointer active:opacity-20"
@@ -70,7 +60,7 @@ function ToolsBoard({
           style={{
             border:
               currStrokeWidth === 4
-                ? `${isMobile ? 2 : 4}px solid #AF1740`
+                ? `${isMobile ? 2 : 4}px solid #b9466c`
                 : `${isMobile ? 0 : 4}px solid black`,
           }}
           className="flex justify-center items-center w-[18%] md:w-1/3 aspect-square rounded border-gray-900"
@@ -82,7 +72,7 @@ function ToolsBoard({
           style={{
             border:
               currStrokeWidth === 8
-                ? `${isMobile ? 2 : 4}px solid #AF1740`
+                ? `${isMobile ? 2 : 4}px solid #b9466c`
                 : `${isMobile ? 0 : 4}px solid black`,
           }}
           className="flex justify-center items-center w-[18%] md:w-1/3 aspect-square rounded border-gray-900"
@@ -94,7 +84,7 @@ function ToolsBoard({
           style={{
             border:
               currStrokeWidth === 12
-                ? `${isMobile ? 2 : 4}px solid #AF1740`
+                ? `${isMobile ? 2 : 4}px solid #b9466c`
                 : `${isMobile ? 0 : 4}px solid black`,
           }}
           className="flex justify-center items-center w-[18%] md:w-1/3 aspect-square rounded border-gray-900"

@@ -14,6 +14,7 @@ import { DrawStep } from "../utils/types";
 import { isMobile } from "react-device-detect";
 import { MAX_DRAW, MAX_GUESS } from "../constants";
 
+// TODO: Add check for gameID, it not navigate to home page
 function GamePage() {
   const query = useQueryClient();
   const params = useParams();
@@ -27,12 +28,6 @@ function GamePage() {
   const ref = useRef<HTMLCanvasElement>(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
   const [drawingStack, setDrawingStack] = useState<DrawStep[]>([]);
-  const [canvasWidth, setCanvasWidth] = useState(
-    isMobile ? window.innerWidth : window.innerWidth / 2
-  );
-  const [canvasHeight, setCanvasHeight] = useState(
-    ratioCanvas(isMobile ? window.innerWidth : window.innerWidth / 2, false)
-  );
   const [timer, setTimer] = useState(0);
   const timerStart = useRef(Date.now());
 
@@ -197,14 +192,19 @@ function GamePage() {
         </div>
       ) : (
         <div className="flex flex-col w-full h-full items-center justify-center gap-2">
-          <div className="flex w-full justify-center items-center gap-4 mb-6 lg:mb-0 px-4">
-            <h1 className="font-semibold text-2xl lg:text-4xl">
-              Round {data?.round ?? 0}
-            </h1>
+          <div className="flex flex-col sm:flex-row w-full justify-center items-center gap-4 mb-6 lg:mb-0 px-4">
+            <h1 className="font-semibold text-4xl">Round {data?.round ?? 0}</h1>
             <h2 className="hidden lg:block font-semibold text-xl">
               ({entryCount}/{data?.players.length ?? 0} players)
             </h2>
-            <p>{displayTime(getRoundTime() - timer)}</p>
+            <p
+              style={{
+                color: getRoundTime() - timer < 10 ? "#b9466c" : "#ffffffde",
+              }}
+              className="font-semibold text-3xl p-0 m-0"
+            >
+              {displayTime(getRoundTime() - timer)}
+            </p>
           </div>
 
           <DrawingBoard
@@ -243,7 +243,7 @@ function GamePage() {
             />
             {isDrawingRound(data?.round) ? (
               <button
-                className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded"
+                className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded shadow shadow-gray-800"
                 disabled={!data}
                 onClick={handleDrawingSubmit}
               >
@@ -255,7 +255,7 @@ function GamePage() {
               </button>
             ) : (
               <button
-                className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded"
+                className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded shadow shadow-gray-800"
                 onClick={handleEntrySubmit}
                 disabled={!data || isPending || isDrawingPending}
               >
@@ -263,6 +263,23 @@ function GamePage() {
               </button>
             )}
           </div>
+        </div>
+      )}
+
+      {isMobile ? (
+        <div className="absolute -z-40 flex top-0 left-0 w-full h-4/5">
+          <img
+            className="w-full object-cover rotate-180"
+            src="/bg-home.svg"
+            alt="svg"
+          />
+        </div>
+      ) : (
+        <div
+          style={{ width: window.innerWidth, height: window.innerHeight }}
+          className="absolute -right-[250px] -z-40 flex justify-center items-center"
+        >
+          <img className="w-full" src="/bg-home.svg" alt="svg" />
         </div>
       )}
     </div>

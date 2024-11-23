@@ -9,14 +9,17 @@ import {
 } from "../utils/helpers";
 import { useEffect, useState } from "react";
 import { ShowingContent } from "../utils/types";
+import { isMobile } from "react-device-detect";
+import { ArrowBigLeft } from "lucide-react";
 
+// TODO: Add check for gameID, it not navigate to home page
 function GameEnd() {
   const params = useParams();
   const navigate = useNavigate();
   const roomId = params.roomId;
 
-  const { data, isLoading } = useFullGame(roomId ?? "");
-  //const { data, isLoading } = useGameTest();
+  //const { data, isLoading } = useFullGame(roomId ?? "");
+  const { data, isLoading } = useGameTest();
 
   // content, from-username, from-avatar, from-color
   const [playerContentShowing, setPlayerContentShowing] = useState<
@@ -98,12 +101,11 @@ function GameEnd() {
           navigate("/");
         }}
       >
-        Leave
+        <ArrowBigLeft color="white" className="w-12 h-10" />
       </div>
-      <h1 className="text-4xl font-bold">Game Room ({roomId})</h1>
-      <div className="w-full border-[1px] border-gray-100 my-4" />
-      <div className="flex flex-col md:flex-row w-full md:w-2/3 min-w-[350px] md:min-w-[725px] h-full border-2 border-gray-50 rounded-lg">
-        <div className="flex flex-wrap justify-center md:justify-start md:flex-col gap-2 p-4 w-full md:w-1/4 md:border-r-2 md:border-gray-50">
+      <h1 className="text-3xl sm:text-6xl font-bold">Game Room ({roomId})</h1>
+      <div className="flex flex-col md:flex-row w-full md:w-2/3 min-w-[350px] md:min-w-[725px] h-full border-2 border-gray-900 rounded-lg">
+        <div className="flex flex-wrap bg-dark justify-center md:justify-start md:flex-col gap-2 p-4 w-full md:w-1/4 md:border-r-2 md:border-gray-50">
           {isLoading || !data ? (
             <p>No Players</p>
           ) : (
@@ -140,9 +142,13 @@ function GameEnd() {
             })
           )}
         </div>
-        <div className="flex flex-col gap-2 p-4 w-full md:w-3/4 items-center overflow-scroll">
+        <div className="flex flex-col gap-2 p-4 w-full md:w-3/4 items-center overflow-scroll md:bg-dark-50">
           {playerContentShowing.length === 0 ? (
-            <p>Select a player...</p>
+            isCreator() ? (
+              <p>Select a player...</p>
+            ) : (
+              <p>Waiting for host</p>
+            )
           ) : (
             <>
               {playerContentShowing.slice(0, sliceShown).map((c, i) =>
@@ -217,6 +223,19 @@ function GameEnd() {
           )}
         </div>
       </div>
+
+      {isMobile ? (
+        <div className="absolute -z-40 flex top-0 left-0 w-full h-full">
+          <img className="w-full object-cover" src="/bg-home.svg" alt="svg" />
+        </div>
+      ) : (
+        <div
+          style={{ width: window.innerWidth, height: window.innerHeight }}
+          className="absolute -right-[250px] -z-40 flex justify-center items-center"
+        >
+          <img className="w-full" src="/bg-home.svg" alt="svg" />
+        </div>
+      )}
     </div>
   );
 }

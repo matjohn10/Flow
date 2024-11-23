@@ -8,7 +8,7 @@ interface props {
 
 function ColorsBoard({ currColor, setColor }: props) {
   return (
-    <div className="flex flex-wrap justify-center w-full md:w-1/6 xl:w-[12%] h-auto bg-blue-100 rounded-lg p-2 gap-2">
+    <div className="flex flex-wrap justify-center w-full md:w-1/6 xl:w-[12%] h-auto bg-gray-100 rounded-lg p-2 gap-2">
       {COLORS.map((c) => (
         <div
           key={c}

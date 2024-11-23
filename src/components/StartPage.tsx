@@ -3,7 +3,8 @@ import { socket } from "../utils/socket";
 import { useNavigate } from "react-router-dom";
 import { ArrowBigLeft, CircleCheckBig, CircleX } from "lucide-react";
 import PlayerChooseAvatar from "./PlayerChooseAvatar";
-import { ICONS } from "../constants";
+import { ICONS, ROOM_ID_LEN } from "../constants";
+import { isMobile } from "react-device-detect";
 
 function StartPage() {
   const [username, setUsername] = useState("");
@@ -26,7 +27,8 @@ function StartPage() {
   }, []);
 
   const handleJoin = () => {
-    if (!roomToJoin || roomToJoin.length < 5) return;
+    if (!roomToJoin || roomToJoin.length < ROOM_ID_LEN) return;
+    // TODO: check username for edge cases like only spaces or no letters
     const player = {
       playerId: localStorage.getItem("user-id") ?? "",
       username,
@@ -84,7 +86,7 @@ function StartPage() {
       {!error ? (
         <></>
       ) : (
-        <div className="text-red-700">
+        <div className="text-red-700 bg-gray-100 px-2 rounded">
           This game ID does not exist. Please try another one.
         </div>
       )}
@@ -95,8 +97,8 @@ function StartPage() {
             disabled={pressed && (!username || !color || !icon)}
             className={
               !pressed
-                ? "bg-gray-200 border-2 rounded text-black font-semibold px-4 py-2"
-                : "bg-gray-200 border-2 rounded text-green-700 font-semibold px-4 py-2"
+                ? "bg-gray-200 border-2 rounded text-black font-semibold px-4 py-2 shadow shadow-gray-800"
+                : "bg-gray-200 border-2 rounded text-green-700 font-semibold px-4 py-2 shadow shadow-gray-800"
             }
           >
             {!pressed ? "Join" : <CircleCheckBig />}
@@ -106,7 +108,7 @@ function StartPage() {
           ) : (
             <button
               onClick={() => setPressed((prev) => !prev)}
-              className="bg-gray-200 border-2 rounded text-red-800 font-semibold px-4 py-2"
+              className="bg-gray-200 border-2 rounded text-red-800 font-semibold px-4 py-2 shadow shadow-gray-800"
             >
               <CircleX />
             </button>
@@ -127,7 +129,7 @@ function StartPage() {
               socket.emit("create-room", playerString);
             }}
             disabled={!username || !color || !icon}
-            className="bg-gray-200 border-2 rounded text-black font-semibold px-4 py-2"
+            className="bg-gray-200 border-2 rounded text-black font-semibold px-4 py-2 shadow shadow-gray-800"
           >
             Create
           </button>
@@ -144,6 +146,19 @@ function StartPage() {
           />
         )}
       </div>
+
+      {isMobile ? (
+        <div className="absolute -z-40 flex bot-0 left-0 w-full h-full">
+          <img className="w-full object-cover" src="/bg-home.svg" alt="svg" />
+        </div>
+      ) : (
+        <div
+          style={{ width: window.innerWidth, height: window.innerHeight }}
+          className="absolute -right-[250px] -z-40 flex justify-center items-center"
+        >
+          <img className="w-full" src="/bg-home.svg" alt="svg" />
+        </div>
+      )}
     </div>
   );
 }
