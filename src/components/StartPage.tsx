@@ -5,6 +5,7 @@ import { ArrowBigLeft, CircleCheckBig, CircleX } from "lucide-react";
 import PlayerChooseAvatar from "./PlayerChooseAvatar";
 import { ICONS, ROOM_ID_LEN } from "../constants";
 import { isMobile } from "react-device-detect";
+import { checkString } from "../utils/helpers";
 
 function StartPage() {
   const [username, setUsername] = useState("");
@@ -13,6 +14,7 @@ function StartPage() {
 
   const [roomToJoin, setRoomToJoin] = useState("");
   const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const [pressed, setPressed] = useState(false);
   const navigate = useNavigate();
 
@@ -23,12 +25,35 @@ function StartPage() {
     });
     socket.on("join-error", () => {
       setError(true);
+      setErrorMsg("This game ID does not exist. Please try another one.");
     });
   }, []);
 
+  const handleCreate = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    if (!checkString(username.trim())) {
+      setError(true);
+      setErrorMsg(`Improper username format. Please try again.`);
+      return;
+    }
+    const player = {
+      playerId: localStorage.getItem("user-id") ?? "",
+      username,
+      color,
+      icon,
+    };
+    const playerString = JSON.stringify(player);
+    localStorage.setItem("player", playerString);
+    socket.emit("create-room", playerString);
+  };
+
   const handleJoin = () => {
     if (!roomToJoin || roomToJoin.length < ROOM_ID_LEN) return;
-    // TODO: check username for edge cases like only spaces or no letters
+    if (!checkString(username.trim())) {
+      setError(true);
+      setErrorMsg(`Improper username format. Please try again.`);
+      return;
+    }
     const player = {
       playerId: localStorage.getItem("user-id") ?? "",
       username,
@@ -55,7 +80,11 @@ function StartPage() {
             type="text"
             maxLength={10}
             value={username}
-            onChange={(e) => setUsername(e.currentTarget.value)}
+            onChange={(e) => {
+              setError(false);
+              setErrorMsg("");
+              setUsername(e.currentTarget.value);
+            }}
             className="w-full p-2 rounded bg-gray-200 text-black font-semibold"
           />
         </div>
@@ -86,9 +115,7 @@ function StartPage() {
       {!error ? (
         <></>
       ) : (
-        <div className="text-red-700 bg-gray-100 px-2 rounded">
-          This game ID does not exist. Please try another one.
-        </div>
+        <div className="text-red-700 bg-gray-100 px-2 rounded">{errorMsg}</div>
       )}
       <div className="flex w-3/4 justify-center gap-10 mt-4">
         <div className="flex items-center gap-1">
@@ -116,18 +143,7 @@ function StartPage() {
         </div>
         {!pressed ? (
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              const player = {
-                playerId: localStorage.getItem("user-id") ?? "",
-                username,
-                color,
-                icon,
-              };
-              const playerString = JSON.stringify(player);
-              localStorage.setItem("player", playerString);
-              socket.emit("create-room", playerString);
-            }}
+            onClick={(e) => handleCreate(e)}
             disabled={!username || !color || !icon}
             className="bg-gray-200 border-2 rounded text-black font-semibold px-4 py-2 shadow shadow-gray-800"
           >
@@ -141,6 +157,8 @@ function StartPage() {
             value={roomToJoin}
             maxLength={5}
             onChange={(e) => {
+              setError(false);
+              setErrorMsg("");
               setRoomToJoin(e.currentTarget.value);
             }}
           />

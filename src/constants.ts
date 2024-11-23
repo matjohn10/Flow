@@ -135,3 +135,5 @@ export const TestPlayers = [
     icon: "unicorn",
   },
 ];
+
+export const BAD_ASCII = `./\\|[]():;"&*^%$#@+={}~!?><,` as const;

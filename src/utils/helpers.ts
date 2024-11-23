@@ -1,3 +1,4 @@
+import { BAD_ASCII } from "../constants";
 import { Player } from "../queries/games";
 import { DrawStep } from "./types";
 
@@ -192,4 +193,15 @@ export function randomNumber(min: number = 0, max: number = 10000) {
 export function ratioCanvas(width: number, reversed: boolean) {
   // keep 16w/9h * scale ()
   return reversed ? (width * 16) / 12 : (width * 12) / 16;
+}
+
+export function checkString(str: string): boolean {
+  if (!str) return false;
+  let spaceCount = 0;
+  for (let i = 0; i < str.length; i++) {
+    if (BAD_ASCII.includes(str[i])) return false;
+    if (str[i] === " ") spaceCount++;
+  }
+
+  return spaceCount !== str.length;
 }
