@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { APP_NAME } from "./constants";
 import { isMobile } from "react-device-detect";
 
-// TODO: Make terms and condition, privacy policy
 function App() {
   return (
     <div className="relative w-full h-full flex flex-col p-24 gap-4 overflow-hidden">
@@ -34,10 +33,18 @@ function App() {
       )}
 
       <div className="absolute bottom-0 left-0 flex w-full justify-center gap-4 sm:gap-10 md:gap-14 lg:gap-30 p-4">
-        <a className="underline" href="/">
+        <a
+          className="underline"
+          target="_blank"
+          href="https://www.freeprivacypolicy.com/live/54d9c160-b289-4de7-b51a-4d96c0e8d63e"
+        >
           Terms & Conditions
         </a>
-        <a className="underline" href="/">
+        <a
+          className="underline"
+          href="https://www.freeprivacypolicy.com/live/2fd41011-84f8-48d9-8045-d0c14dfc3c88"
+          target="_blank"
+        >
           Privacy policy
         </a>
         <a
