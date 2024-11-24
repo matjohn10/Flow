@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { APP_NAME } from "./constants";
 import { isMobile } from "react-device-detect";
 
-// TODO: Add Terms&conditons + privacy policy + developer at bottoms
+// TODO: Make terms and condition, privacy policy
 function App() {
   return (
     <div className="relative w-full h-full flex flex-col p-24 gap-4 overflow-hidden">
@@ -32,6 +32,22 @@ function App() {
           <img className="w-full" src="/bg-home.svg" alt="svg" />
         </div>
       )}
+
+      <div className="absolute bottom-0 left-0 flex w-full justify-center gap-4 sm:gap-10 md:gap-14 lg:gap-30 p-4">
+        <a className="underline" href="/">
+          Terms & Conditions
+        </a>
+        <a className="underline" href="/">
+          Privacy policy
+        </a>
+        <a
+          className="underline"
+          href="https://github.com/matjohn10"
+          target="_blank"
+        >
+          &copy; Mathieu Johnson
+        </a>
+      </div>
     </div>
   );
 }
