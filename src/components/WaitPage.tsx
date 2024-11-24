@@ -10,6 +10,7 @@ import { TestPlayers } from "../constants";
 import { isMobile } from "react-device-detect";
 import { buttonPress } from "../utils/sounds";
 
+// TODO: Popping sound when player joins (only those already in, not arriving player)
 function WaitPage() {
   const query = useQueryClient();
   const params = useParams();
@@ -59,7 +60,6 @@ function WaitPage() {
   }
 
   function handleStartGame() {
-    buttonPress.play();
     navigate(`/game-time/${roomId}/play`);
     socket.emit("game-started", roomId);
   }

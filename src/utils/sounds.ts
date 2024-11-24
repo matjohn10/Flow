@@ -21,4 +21,8 @@ class Sound {
   }
 }
 
-export const buttonPress = new Sound("/sounds/button.mp3", 0.3);
+export const buttonPress = new Sound("/sounds/button2.mp3", 0.1);
+export const gamePress = new Sound("/sounds/button2.mp3", 0.15);
+export const beeping = new Sound("/sounds/beep.mp3", 0.15);
+export const endGame = new Sound("/sounds/horn.mp3", 0.2);
+export const gameSound = new Sound("/sounds/bg-sound.mp3", 0.03);

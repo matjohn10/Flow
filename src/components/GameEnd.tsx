@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { ShowingContent } from "../utils/types";
 import { isMobile } from "react-device-detect";
 import { ArrowBigLeft } from "lucide-react";
-import { buttonPress } from "../utils/sounds";
+import { buttonPress, gamePress } from "../utils/sounds";
 
 function GameEnd() {
   const params = useParams();
@@ -95,6 +95,7 @@ function GameEnd() {
 
   function handlePlayer(playerId: string) {
     if (!data) return;
+    gamePress.play();
     const rank = FindRankOfPlayer(data.players, playerId);
     setSliceShown(1); // reset sliceshown
     getFullPlayerTelestration(rank);
@@ -103,6 +104,7 @@ function GameEnd() {
 
   function handleNext() {
     if (!data) return;
+    gamePress.play();
     setSliceShown((prev) => prev + 1);
     socket.emit("show-next", roomId, sliceShown + 1);
   }

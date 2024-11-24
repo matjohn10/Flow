@@ -79,8 +79,8 @@ export const TOOLS = [
   },
 ] as const;
 
-export const MAX_GUESS = 90 as const;
-export const MAX_DRAW = 300 as const;
+export const MAX_GUESS = 20 as const;
+export const MAX_DRAW = 20 as const;
 export const MAIN_MOUSE_BUTTON = 0 as const;
 export const CANVAS_COLOR = "#f9fafb" as const;
 export const ROOM_ID_LEN = 5 as const;

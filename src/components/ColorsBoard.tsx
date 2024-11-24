@@ -1,5 +1,6 @@
 import { isMobile } from "react-device-detect";
 import { COLORS } from "../constants";
+import { gamePress } from "../utils/sounds";
 
 interface props {
   currColor: string;
@@ -12,7 +13,10 @@ function ColorsBoard({ currColor, setColor }: props) {
       {COLORS.map((c) => (
         <div
           key={c}
-          onClick={() => setColor(c)}
+          onClick={() => {
+            gamePress.play();
+            setColor(c);
+          }}
           style={{
             backgroundColor: c,
             border:

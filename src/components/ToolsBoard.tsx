@@ -2,6 +2,7 @@ import { Dot, Redo, Undo } from "lucide-react";
 import { Tool } from "../utils/types";
 import { isMobile } from "react-device-detect";
 import { TOOLS } from "../constants";
+import { gamePress } from "../utils/sounds";
 
 interface props {
   undo: () => void;
@@ -24,7 +25,11 @@ function ToolsBoard({
     <div className="flex flex-wrap w-full md:w-1/6 xl:w-[12%] justify-center h-auto bg-gray-100 rounded-lg p-3 gap-3">
       {TOOLS.map((t) => (
         <div
-          onClick={() => setCurrentTool(t.name)}
+          key={t.name}
+          onClick={() => {
+            gamePress.play();
+            setCurrentTool(t.name);
+          }}
           style={{
             border:
               currentTool === t.name
@@ -37,7 +42,10 @@ function ToolsBoard({
         </div>
       ))}
       <div
-        onClick={() => undo()}
+        onClick={() => {
+          gamePress.play();
+          undo();
+        }}
         style={{
           border: `${isMobile ? 0 : 4}px solid black`,
         }}
@@ -46,7 +54,10 @@ function ToolsBoard({
         <Undo size={32} color="black" strokeWidth={2} />
       </div>
       <div
-        onClick={() => redo()}
+        onClick={() => {
+          gamePress.play();
+          redo();
+        }}
         style={{
           border: `${isMobile ? 0 : 4}px solid black`,
         }}
@@ -56,7 +67,10 @@ function ToolsBoard({
       </div>
       <div className="flex items-center justify-center w-1/3 md:w-full gap-3">
         <div
-          onClick={() => setStrokeWidth(4)}
+          onClick={() => {
+            gamePress.play();
+            setStrokeWidth(4);
+          }}
           style={{
             border:
               currStrokeWidth === 4
@@ -68,7 +82,10 @@ function ToolsBoard({
           <Dot color="black" size={40} strokeWidth={4} />
         </div>
         <div
-          onClick={() => setStrokeWidth(8)}
+          onClick={() => {
+            gamePress.play();
+            setStrokeWidth(8);
+          }}
           style={{
             border:
               currStrokeWidth === 8
@@ -80,7 +97,10 @@ function ToolsBoard({
           <Dot color="black" size={40} strokeWidth={8} />
         </div>
         <div
-          onClick={() => setStrokeWidth(12)}
+          onClick={() => {
+            gamePress.play();
+            setStrokeWidth(12);
+          }}
           style={{
             border:
               currStrokeWidth === 12

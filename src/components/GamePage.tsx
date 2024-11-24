@@ -18,8 +18,9 @@ import DrawingBoard from "./DrawingBoard";
 import { DrawStep } from "../utils/types";
 import { isMobile } from "react-device-detect";
 import { MAX_DRAW, MAX_GUESS } from "../constants";
-import { buttonPress } from "../utils/sounds";
+import { beeping, gameSound } from "../utils/sounds";
 
+// TODO: Noises from sockets when receiving content
 function GamePage() {
   const query = useQueryClient();
   const params = useParams();
@@ -43,6 +44,13 @@ function GamePage() {
   }, []);
   useEffect(() => {
     if (isGame && !isGame.status) {
+      //clear timer
+      const currTimer = localStorage.getItem("timer");
+      if (!!currTimer) {
+        clearInterval(Number(currTimer));
+        setTimer(0);
+      }
+      gameSound.stop();
       navigate("/");
     }
   }, [isGame]);
@@ -59,7 +67,6 @@ function GamePage() {
   const [drawingToGuess, setDrawingToGuess] = useState<string | null>(null);
   const handleEntrySubmit = async () => {
     if (!data) return;
-    buttonPress.play();
     await addEntry({
       entry,
       rank: FindRankOfPlayer(
@@ -76,7 +83,6 @@ function GamePage() {
   };
   const handleDrawingSubmit = async () => {
     if (!data || !ref.current) return;
-    buttonPress.play();
     const imgUrl = ref.current.toDataURL();
     await addDrawing({
       drawing: imgUrl,
@@ -91,13 +97,6 @@ function GamePage() {
     setDrawingStack([]);
     setDrawingToGuess(null);
   };
-
-  // useEffect(() => {
-  //   setCanvasWidth(isMobile ? window.innerWidth : window.innerWidth / 2);
-  //   setCanvasHeight(
-  //     ratioCanvas(isMobile ? window.innerWidth : window.innerWidth / 2, false)
-  //   );
-  // }, [innerWidth, innerHeight]);
 
   useEffect(() => {
     socket.on("num-entry", (num: number) => {
@@ -130,10 +129,12 @@ function GamePage() {
         clearInterval(Number(ii));
         setTimer(0);
       }
+      beeping.stop();
       console.log("START NEW TIMER");
       const i = setInterval(() => {
         const diff = (Date.now() - content.time) / 1000;
         setTimer(Math.floor(diff));
+        if (getRoundTime() - Math.floor(diff) <= 10) beeping.play();
       }, 1000);
       localStorage.setItem("timer", i + "");
 
@@ -163,6 +164,14 @@ function GamePage() {
   useEffect(() => {
     if (data && data.players.length < data.round) {
       console.log("GAME IS DONE");
+      //clear timer
+      const currTimer = localStorage.getItem("timer");
+      if (!!currTimer) {
+        clearInterval(Number(currTimer));
+        setTimer(0);
+      }
+      gameSound.stop();
+      beeping.stop();
       navigate(`/game-time/${roomId}/end`);
     }
   }, [data?.round]);
@@ -193,11 +202,15 @@ function GamePage() {
   }, [timer]);
   const timerRef = useRef(false);
   useEffect(() => {
+    // start music
+    gameSound.play();
+    // start timer
     if (timer === 0 && !timerRef.current) {
       console.log("INIT TIMER");
       const i = setInterval(() => {
         const diff = (Date.now() - timerStart.current) / 1000;
         setTimer(Math.floor(diff));
+        if (getRoundTime() - Math.floor(diff) <= 10) beeping.play();
       }, 1000);
       localStorage.setItem("timer", i + "");
       timerRef.current = true;
@@ -268,7 +281,7 @@ function GamePage() {
               <button
                 className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded shadow shadow-gray-800"
                 disabled={!data}
-                onClick={handleDrawingSubmit}
+                onClick={() => handleDrawingSubmit()}
               >
                 {!entrySent
                   ? isDrawingPending
@@ -279,7 +292,7 @@ function GamePage() {
             ) : (
               <button
                 className="font-semibold text-lg bg-gray-50 text-black px-4 py-2 rounded shadow shadow-gray-800"
-                onClick={handleEntrySubmit}
+                onClick={() => handleEntrySubmit()}
                 disabled={!data || isPending || isDrawingPending}
               >
                 {!entrySent ? (isPending ? "Saving..." : "Submit") : "Done!"}

@@ -31,7 +31,6 @@ function StartPage() {
   }, []);
 
   const handleCreate = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    buttonPress.play();
     e.preventDefault();
     if (!checkString(username.trim())) {
       setError(true);
@@ -50,7 +49,6 @@ function StartPage() {
   };
 
   const handleJoin = () => {
-    buttonPress.play();
     if (!roomToJoin || roomToJoin.length < ROOM_ID_LEN) return;
     if (!checkString(username.trim())) {
       setError(true);
@@ -130,7 +128,6 @@ function StartPage() {
               !pressed
                 ? () => {
                     setPressed((prev) => !prev);
-                    buttonPress.play();
                   }
                 : handleJoin
             }
@@ -149,7 +146,6 @@ function StartPage() {
             <button
               onClick={() => {
                 setPressed((prev) => !prev);
-                buttonPress.play();
               }}
               className="bg-gray-200 border-2 rounded text-red-800 font-semibold px-4 py-2 shadow shadow-gray-800"
             >
