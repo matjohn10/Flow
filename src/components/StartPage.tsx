@@ -6,6 +6,7 @@ import PlayerChooseAvatar from "./PlayerChooseAvatar";
 import { ICONS, ROOM_ID_LEN } from "../constants";
 import { isMobile } from "react-device-detect";
 import { checkString } from "../utils/helpers";
+import { buttonPress } from "../utils/sounds";
 
 function StartPage() {
   const [username, setUsername] = useState("");
@@ -30,6 +31,7 @@ function StartPage() {
   }, []);
 
   const handleCreate = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    buttonPress.play();
     e.preventDefault();
     if (!checkString(username.trim())) {
       setError(true);
@@ -48,6 +50,7 @@ function StartPage() {
   };
 
   const handleJoin = () => {
+    buttonPress.play();
     if (!roomToJoin || roomToJoin.length < ROOM_ID_LEN) return;
     if (!checkString(username.trim())) {
       setError(true);
@@ -68,7 +71,10 @@ function StartPage() {
     <div className="flex flex-col w-full h-full items-center gap-4 p-10 relative overflow-hidden">
       <div
         className="absolute w-10 h-10 left-10 hover:cursor-pointer"
-        onClick={() => navigate("/")}
+        onClick={() => {
+          buttonPress.play();
+          navigate("/");
+        }}
       >
         <ArrowBigLeft color="white" className="w-12 h-10" />
       </div>
@@ -120,7 +126,14 @@ function StartPage() {
       <div className="flex w-3/4 justify-center gap-10 mt-4">
         <div className="flex items-center gap-1">
           <button
-            onClick={!pressed ? () => setPressed((prev) => !prev) : handleJoin}
+            onClick={
+              !pressed
+                ? () => {
+                    setPressed((prev) => !prev);
+                    buttonPress.play();
+                  }
+                : handleJoin
+            }
             disabled={pressed && (!username || !color || !icon)}
             className={
               !pressed
@@ -134,7 +147,10 @@ function StartPage() {
             <></>
           ) : (
             <button
-              onClick={() => setPressed((prev) => !prev)}
+              onClick={() => {
+                setPressed((prev) => !prev);
+                buttonPress.play();
+              }}
               className="bg-gray-200 border-2 rounded text-red-800 font-semibold px-4 py-2 shadow shadow-gray-800"
             >
               <CircleX />

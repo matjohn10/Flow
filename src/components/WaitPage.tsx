@@ -8,6 +8,7 @@ import PlayerCard from "./PlayerCard";
 import { ArrowBigLeft } from "lucide-react";
 import { TestPlayers } from "../constants";
 import { isMobile } from "react-device-detect";
+import { buttonPress } from "../utils/sounds";
 
 function WaitPage() {
   const query = useQueryClient();
@@ -58,7 +59,7 @@ function WaitPage() {
   }
 
   function handleStartGame() {
-    console.log("Start Game");
+    buttonPress.play();
     navigate(`/game-time/${roomId}/play`);
     socket.emit("game-started", roomId);
   }
@@ -68,6 +69,7 @@ function WaitPage() {
         className="absolute w-10 h-10 left-10 hover:cursor-pointer"
         onClick={() => {
           socket.emit("player-out", roomId);
+          buttonPress.play();
           navigate("/");
         }}
       >

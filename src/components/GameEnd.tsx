@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { ShowingContent } from "../utils/types";
 import { isMobile } from "react-device-detect";
 import { ArrowBigLeft } from "lucide-react";
+import { buttonPress } from "../utils/sounds";
 
 function GameEnd() {
   const params = useParams();
@@ -81,7 +82,6 @@ function GameEnd() {
       const index = i % 2 !== 0 ? Math.floor(i / 2) : i / 2 - 1;
       const step = i % 2 !== 0 ? "guesses" : "drawings";
       const fromRank = (playerRank + i - 1) % data.players.length;
-      console.log(index, step, fromRank, data.players);
       const content = data.content[fromRank][step][index];
       const player = ParseToPlayer(data.players[fromRank]);
       gameData.push({
@@ -113,6 +113,7 @@ function GameEnd() {
         className="absolute w-10 h-10 left-10 hover:cursor-pointer"
         onClick={() => {
           socket.emit("player-out", roomId);
+          buttonPress.play();
           navigate("/");
         }}
       >

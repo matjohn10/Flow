@@ -18,6 +18,7 @@ import DrawingBoard from "./DrawingBoard";
 import { DrawStep } from "../utils/types";
 import { isMobile } from "react-device-detect";
 import { MAX_DRAW, MAX_GUESS } from "../constants";
+import { buttonPress } from "../utils/sounds";
 
 function GamePage() {
   const query = useQueryClient();
@@ -58,7 +59,7 @@ function GamePage() {
   const [drawingToGuess, setDrawingToGuess] = useState<string | null>(null);
   const handleEntrySubmit = async () => {
     if (!data) return;
-
+    buttonPress.play();
     await addEntry({
       entry,
       rank: FindRankOfPlayer(
@@ -75,6 +76,7 @@ function GamePage() {
   };
   const handleDrawingSubmit = async () => {
     if (!data || !ref.current) return;
+    buttonPress.play();
     const imgUrl = ref.current.toDataURL();
     await addDrawing({
       drawing: imgUrl,

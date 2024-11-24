@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
 import { APP_NAME } from "./constants";
 import { isMobile } from "react-device-detect";
+import { buttonPress } from "./utils/sounds";
 
 function App() {
+  function handleSound() {
+    buttonPress.play();
+  }
   return (
     <div className="relative w-full h-full flex flex-col p-24 gap-4 overflow-hidden">
       <h1 className="font-extrabold text-7xl md:text-9xl">{APP_NAME}</h1>
@@ -15,8 +19,13 @@ function App() {
         game of drawing and guessing!
       </p>
       <div className="flex w-full h-full justify-center items-center">
-        <button className="bg-gray-200 border-2 rounded text-black px-4 md:px-8 py-2 md:py-3 text-2xl font-semibold shadow shadow-gray-800">
-          <Link to="/game">Start Game</Link>
+        <button onClick={handleSound}>
+          <Link
+            className="bg-gray-200 border-2 rounded text-black px-4 md:px-8 py-2 md:py-3 text-2xl font-semibold shadow shadow-gray-800"
+            to="/game"
+          >
+            Start Game
+          </Link>
         </button>
       </div>
       {isMobile ? (
