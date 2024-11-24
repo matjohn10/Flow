@@ -26,3 +26,4 @@ dist-ssr
 .env
 
 src/components/HomeCanvas.tsx
+todo.txt

@@ -18,9 +18,9 @@ import DrawingBoard from "./DrawingBoard";
 import { DrawStep } from "../utils/types";
 import { isMobile } from "react-device-detect";
 import { MAX_DRAW, MAX_GUESS } from "../constants";
-import { beeping, gameSound } from "../utils/sounds";
+import { beeping, gamePress, gameSound } from "../utils/sounds";
+import { ArrowBigLeft } from "lucide-react";
 
-// TODO: Noises from sockets when receiving content
 function GamePage() {
   const query = useQueryClient();
   const params = useParams();
@@ -109,10 +109,6 @@ function GamePage() {
     socket.on("round-update", async () => {
       await query.invalidateQueries({ queryKey: ["game", roomId] });
     });
-    socket.on("player-out", async () => {
-      await query.invalidateQueries({ queryKey: ["game", roomId] });
-      navigate("/game");
-    });
     socket.on("round-content", async (contentS: string) => {
       // Socket starting the round (drawing/guess)
       await query.invalidateQueries({ queryKey: ["game", roomId] });
@@ -146,18 +142,29 @@ function GamePage() {
       }
       setEntrySent(false);
       setEntryCount(0);
+
+      gamePress.play();
+    });
+    socket.on("room-off", async () => {
+      console.log("Emit to leave current game.");
+      await query.invalidateQueries({ queryKey: ["game", roomId] });
+      socket.emit("player-out", roomId);
+      navigate("/game");
     });
 
     return () => {
       socket.off("num-entry");
       socket.off("round-update");
       socket.off("round-content");
-      socket.off("player-out");
+      socket.off("room-off");
     };
   }, [ctx]);
 
   function getRoundTime(): number {
     return (data?.round ?? 0) % 2 === 0 ? MAX_DRAW : MAX_GUESS;
+  }
+  function isCreator(): boolean {
+    return data?.creator === (localStorage.getItem("user-id") ?? "-1");
   }
 
   // END GAME
@@ -172,6 +179,7 @@ function GamePage() {
       }
       gameSound.stop();
       beeping.stop();
+      if (isCreator()) socket.emit("game-end", roomId);
       navigate(`/game-time/${roomId}/end`);
     }
   }, [data?.round]);
@@ -222,6 +230,16 @@ function GamePage() {
       style={{ position: "fixed" }}
       className="relative flex flex-col w-full h-full overflow-hidden overflow-x-hidden"
     >
+      <div
+        className="absolute w-10 h-10 top-12 left-10 hover:cursor-pointer"
+        onClick={() => {
+          // TODO: add warning before leaving game for all (will delete whole game - unplayable)
+          socket.emit("player-out", roomId);
+          navigate("/");
+        }}
+      >
+        <ArrowBigLeft color="white" className="w-12 h-10" />
+      </div>
       {isMobile && innerWidth > 500 ? (
         <div className="w-full h-full flex justify-center items-center text-4xl font-bold">
           Cannot use landscape mode.

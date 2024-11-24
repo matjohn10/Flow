@@ -4,6 +4,7 @@ type Game = {
   players: string[];
   creator: string;
   round: number;
+  status: "wait" | "play" | "end";
   gameId?: string | null | undefined;
 };
 

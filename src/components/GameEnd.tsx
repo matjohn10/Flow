@@ -12,14 +12,16 @@ import { ShowingContent } from "../utils/types";
 import { isMobile } from "react-device-detect";
 import { ArrowBigLeft } from "lucide-react";
 import { buttonPress, gamePress } from "../utils/sounds";
+import { useQueryClient } from "@tanstack/react-query";
 
 function GameEnd() {
+  const query = useQueryClient();
   const params = useParams();
   const navigate = useNavigate();
   const roomId = params.roomId;
 
-  //const { data, isLoading } = useFullGame(roomId ?? "");
-  const { data, isLoading } = useGameTest();
+  const { data, isLoading } = useFullGame(roomId ?? "");
+  //const { data, isLoading } = useGameTest();
   const [active, setActive] = useState(false);
   const { data: isGame } = useCheckGame(
     roomId ?? "",
@@ -52,10 +54,14 @@ function GameEnd() {
     socket.on("show-next", (sliceToShow: number) => {
       setSliceShown(sliceToShow);
     });
+    socket.on("player-out", async () => {
+      await query.invalidateQueries({ queryKey: ["game", roomId] });
+    });
 
     return () => {
       socket.off("show-player");
       socket.off("show-next");
+      socket.off("player-out");
     };
   }, [data]);
 
@@ -64,7 +70,7 @@ function GameEnd() {
       setPlayersReady(true);
     }, 1500);
   }, []);
-
+  console.log(data);
   function isCreator(): boolean {
     return data?.creator === (localStorage.getItem("user-id") ?? "-1");
   }
@@ -114,6 +120,7 @@ function GameEnd() {
       <div
         className="absolute w-10 h-10 left-10 hover:cursor-pointer"
         onClick={() => {
+          // TODO: add warning before leaving, breaks game
           socket.emit("player-out", roomId);
           buttonPress.play();
           navigate("/");
@@ -216,7 +223,7 @@ function GameEnd() {
                   </div>
                 )
               )}
-              {sliceShown === data?.players.length ? (
+              {sliceShown === data?.content.length ? (
                 <></>
               ) : sliceShown % 2 === 0 ? (
                 <div

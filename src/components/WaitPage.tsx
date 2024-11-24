@@ -8,9 +8,8 @@ import PlayerCard from "./PlayerCard";
 import { ArrowBigLeft } from "lucide-react";
 import { TestPlayers } from "../constants";
 import { isMobile } from "react-device-detect";
-import { buttonPress } from "../utils/sounds";
+import { buttonPress, gamePress } from "../utils/sounds";
 
-// TODO: Popping sound when player joins (only those already in, not arriving player)
 function WaitPage() {
   const query = useQueryClient();
   const params = useParams();
@@ -40,6 +39,7 @@ function WaitPage() {
     socket.on("room-in", async (playerString: string) => {
       await query.invalidateQueries({ queryKey: ["game", roomId] });
       console.log(playerString);
+      gamePress.play();
     });
     socket.on("room-off", async () => {
       console.log("Emit to leave current room.");
@@ -48,11 +48,17 @@ function WaitPage() {
     });
     socket.on("player-out", async () => {
       await query.invalidateQueries({ queryKey: ["game", roomId] });
-      navigate(0);
     });
     socket.on("game-started", () => {
       navigate(`/game-time/${roomId}/play`);
     });
+
+    return () => {
+      socket.off("room-in");
+      socket.off("room-off");
+      socket.off("player-out");
+      socket.off("game-started");
+    };
   }, []);
 
   function isCreator(): boolean {
@@ -66,6 +72,7 @@ function WaitPage() {
   return (
     <div className="relative flex flex-col w-full h-full items-center p-20 gap-3 overflow-hidden">
       <div
+        // TODO: add warning before leaving game for creator (will delete whole game)
         className="absolute w-10 h-10 left-10 hover:cursor-pointer"
         onClick={() => {
           socket.emit("player-out", roomId);

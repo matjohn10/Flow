@@ -65,6 +65,7 @@ function StartPage() {
     localStorage.setItem("player", playerString);
     socket.emit("join-room", JSON.stringify({ player, roomId: roomToJoin }));
   };
+
   return (
     <div className="flex flex-col w-full h-full items-center gap-4 p-10 relative overflow-hidden">
       <div
