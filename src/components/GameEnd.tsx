@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useFullGame, useGameTest } from "../queries/games";
+import { useCheckGame, useFullGame, useGameTest } from "../queries/games";
 import { socket } from "../utils/socket";
 import {
   FindRankOfPlayer,
@@ -12,7 +12,6 @@ import { ShowingContent } from "../utils/types";
 import { isMobile } from "react-device-detect";
 import { ArrowBigLeft } from "lucide-react";
 
-// TODO: Add check for gameID, it not navigate to home page
 function GameEnd() {
   const params = useParams();
   const navigate = useNavigate();
@@ -20,6 +19,22 @@ function GameEnd() {
 
   //const { data, isLoading } = useFullGame(roomId ?? "");
   const { data, isLoading } = useGameTest();
+  const [active, setActive] = useState(false);
+  const { data: isGame } = useCheckGame(
+    roomId ?? "",
+    localStorage.getItem("user-id") ?? "",
+    active
+  );
+  useEffect(() => {
+    setTimeout(() => {
+      setActive(true);
+    }, 250);
+  }, []);
+  useEffect(() => {
+    if (isGame && !isGame.status) {
+      navigate("/");
+    }
+  }, [isGame]);
 
   // content, from-username, from-avatar, from-color
   const [playerContentShowing, setPlayerContentShowing] = useState<

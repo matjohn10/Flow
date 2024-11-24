@@ -1,6 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAddDrawing, useAddEntry, useGame } from "../queries/games";
+import {
+  useAddDrawing,
+  useAddEntry,
+  useCheckGame,
+  useGame,
+} from "../queries/games";
 import { useEffect, useRef, useState } from "react";
 import {
   displayTime,
@@ -14,7 +19,6 @@ import { DrawStep } from "../utils/types";
 import { isMobile } from "react-device-detect";
 import { MAX_DRAW, MAX_GUESS } from "../constants";
 
-// TODO: Add check for gameID, it not navigate to home page
 function GamePage() {
   const query = useQueryClient();
   const params = useParams();
@@ -24,6 +28,23 @@ function GamePage() {
   const { mutateAsync: addEntry, isPending } = useAddEntry();
   const { mutateAsync: addDrawing, isPending: isDrawingPending } =
     useAddDrawing();
+
+  const [active, setActive] = useState(false);
+  const { data: isGame } = useCheckGame(
+    roomId ?? "",
+    localStorage.getItem("user-id") ?? "",
+    active
+  );
+  useEffect(() => {
+    setTimeout(() => {
+      setActive(true);
+    }, 250);
+  }, []);
+  useEffect(() => {
+    if (isGame && !isGame.status) {
+      navigate("/");
+    }
+  }, [isGame]);
 
   const ref = useRef<HTMLCanvasElement>(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();

@@ -46,6 +46,23 @@ export const useFullGame = (id: string) => {
   });
 };
 
+export const useCheckGame = (id: string, player: string, active: boolean) => {
+  return useQuery({
+    queryKey: ["game", id, "check", player],
+    queryFn: async () => {
+      const res = await fetch(
+        "http://localhost:8000/game/check/" + id + "/" + player,
+        {
+          method: "GET",
+        }
+      );
+      const data = await res.json();
+      return data as { status: boolean };
+    },
+    enabled: active,
+  });
+};
+
 export const useGameTest = () => {
   return useQuery({
     queryKey: ["game-test"],

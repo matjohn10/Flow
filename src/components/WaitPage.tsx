@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../utils/socket";
-import { useGame } from "../queries/games";
+import { useCheckGame, useGame } from "../queries/games";
 import { useQueryClient } from "@tanstack/react-query";
 import { ParseToPlayer } from "../utils/helpers";
 import PlayerCard from "./PlayerCard";
@@ -9,13 +9,29 @@ import { ArrowBigLeft } from "lucide-react";
 import { TestPlayers } from "../constants";
 import { isMobile } from "react-device-detect";
 
-// TODO: Add check for gameID, it not navigate to home page
 function WaitPage() {
   const query = useQueryClient();
   const params = useParams();
   const navigate = useNavigate();
   const roomId = params.roomId;
+
+  const [active, setActive] = useState(false);
+  const { data: isGame } = useCheckGame(
+    roomId ?? "",
+    localStorage.getItem("user-id") ?? "",
+    active
+  );
   const { data } = useGame(roomId ?? "");
+  useEffect(() => {
+    setTimeout(() => {
+      setActive(true);
+    }, 250);
+  }, []);
+  useEffect(() => {
+    if (isGame && !isGame.status) {
+      navigate("/");
+    }
+  }, [isGame]);
 
   useEffect(() => {
     // listens to get room-id after creation
@@ -63,7 +79,7 @@ function WaitPage() {
       ) : (
         <>
           <p className="text-sm">
-            Players ready to play (min 4): {data?.players.length ?? 0}/8
+            Players ready to play (min 4): {data.players.length ?? 0}/8
           </p>
           <div className="flex flex-wrap justify-center w-4/5 md:w-1/2 gap-1">
             {data?.players.map((c) => {
