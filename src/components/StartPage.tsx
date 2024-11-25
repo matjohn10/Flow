@@ -120,7 +120,7 @@ function StartPage() {
       {!error ? (
         <></>
       ) : (
-        <div className="text-red-700 bg-gray-100 px-2 rounded">{errorMsg}</div>
+        <div className="text-red bg-gray-100 px-2 rounded">{errorMsg}</div>
       )}
       <div className="flex w-3/4 justify-center gap-10 mt-4">
         <div className="flex items-center gap-1">
@@ -148,7 +148,7 @@ function StartPage() {
               onClick={() => {
                 setPressed((prev) => !prev);
               }}
-              className="bg-gray-200 border-2 rounded text-red-800 font-semibold px-4 py-2 shadow shadow-gray-800"
+              className="bg-gray-200 border-2 rounded text-red font-semibold px-4 py-2 shadow shadow-gray-800"
             >
               <CircleX />
             </button>

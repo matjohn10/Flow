@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+const SERVER =
+  process.env.NODE_ENV !== "production"
+    ? "http://localhost:8000"
+    : "https://flow-server-ap58.onrender.com";
+
 type Game = {
   players: string[];
   creator: string;
@@ -25,7 +30,7 @@ export const useGame = (id: string) => {
   return useQuery({
     queryKey: ["game", id],
     queryFn: async () => {
-      const res = await fetch("http://localhost:8000/game/" + id, {
+      const res = await fetch(SERVER + "/game/" + id, {
         method: "GET",
       });
       const data = await res.json();
@@ -38,7 +43,7 @@ export const useFullGame = (id: string) => {
   return useQuery({
     queryKey: ["game", "full", id],
     queryFn: async () => {
-      const res = await fetch("http://localhost:8000/game/full/" + id, {
+      const res = await fetch(SERVER + "/game/full/" + id, {
         method: "GET",
       });
       const data = await res.json();
@@ -51,12 +56,9 @@ export const useCheckGame = (id: string, player: string, active: boolean) => {
   return useQuery({
     queryKey: ["game", id, "check", player],
     queryFn: async () => {
-      const res = await fetch(
-        "http://localhost:8000/game/check/" + id + "/" + player,
-        {
-          method: "GET",
-        }
-      );
+      const res = await fetch(SERVER + "/game/check/" + id + "/" + player, {
+        method: "GET",
+      });
       const data = await res.json();
       return data as { status: boolean };
     },
@@ -68,7 +70,7 @@ export const useGameTest = () => {
   return useQuery({
     queryKey: ["game-test"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:8000/tests/game", {
+      const res = await fetch(SERVER + "/tests/game", {
         method: "GET",
       });
       const data = await res.json();
@@ -81,7 +83,7 @@ export const useAddEntry = () => {
   const query = useQueryClient();
   return useMutation({
     async mutationFn(data: { entry: string; rank: number; roomId: string }) {
-      await fetch("http://localhost:8000/game/entry/" + data.roomId, {
+      await fetch(SERVER + "/game/entry/" + data.roomId, {
         method: "POST",
         body: JSON.stringify({ entry: data.entry, rank: data.rank }),
         headers: {
@@ -99,7 +101,7 @@ export const useAddDrawing = () => {
   const query = useQueryClient();
   return useMutation({
     async mutationFn(data: { drawing: string; rank: number; roomId: string }) {
-      await fetch("http://localhost:8000/game/drawing/" + data.roomId, {
+      await fetch(SERVER + "/game/drawing/" + data.roomId, {
         method: "POST",
         body: JSON.stringify({ entry: data.drawing, rank: data.rank }),
         headers: {

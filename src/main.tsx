@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import GamePage from "./components/GamePage.tsx";
 import GameEnd from "./components/GameEnd.tsx";
 
+// TODO: Play test
 const router = createBrowserRouter([
   {
     path: "/",

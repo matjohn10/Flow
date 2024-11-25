@@ -1,6 +1,10 @@
 import io from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
-const WS_URL = "http://localhost:8000";
+const WS_URL =
+  process.env.NODE_ENV !== "production"
+    ? "http://localhost:8000"
+    : "https://flow-server-ap58.onrender.com";
+("https://flow-server-ap58.onrender.com");
 
 export const socket = io(WS_URL);
 
