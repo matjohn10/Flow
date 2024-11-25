@@ -196,7 +196,7 @@ export function ratioCanvas(width: number, reversed: boolean) {
 }
 
 export function checkString(str: string): boolean {
-  if (!str) return false;
+  if (!str || str.length < 3) return false;
   let spaceCount = 0;
   for (let i = 0; i < str.length; i++) {
     if (BAD_ASCII.includes(str[i])) return false;

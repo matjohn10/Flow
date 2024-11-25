@@ -6,9 +6,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ParseToPlayer } from "../utils/helpers";
 import PlayerCard from "./PlayerCard";
 import { ArrowBigLeft } from "lucide-react";
-import { TestPlayers } from "../constants";
 import { isMobile } from "react-device-detect";
 import { buttonPress, gamePress } from "../utils/sounds";
+import { MIN_PLAYERS } from "@/constants";
 
 function WaitPage() {
   const query = useQueryClient();
@@ -24,6 +24,7 @@ function WaitPage() {
   );
   const { data } = useGame(roomId ?? "");
   useEffect(() => {
+    localStorage.removeItem("start");
     setTimeout(() => {
       setActive(true);
     }, 250);
@@ -87,12 +88,14 @@ function WaitPage() {
       ) : (
         <>
           <p className="text-sm">
-            Players ready to play (min 4): {data.players.length ?? 0}/8
+            Players ready to play: {data.players.length ?? 0}/
+            {data.players.length > MIN_PLAYERS
+              ? data.players.length
+              : MIN_PLAYERS}
           </p>
           <div className="flex flex-wrap justify-center w-4/5 md:w-1/2 gap-1">
             {data?.players.map((c) => {
-              //
-              const p = ParseToPlayer(c); // p = c;
+              const p = ParseToPlayer(c);
               return <PlayerCard player={p} key={p.playerId} />;
             })}
           </div>
@@ -100,10 +103,12 @@ function WaitPage() {
             <button
               onClick={handleStartGame}
               //TODO: Re-enable disabling of button
-              //disabled={(data?.players.length ?? 0) < 4}
+              //disabled={(data?.players.length ?? 0) < MIN_PLAYERS}
               className="bg-gray-50 rounded mt-4 px-4 py-2 flex items-center justify-center text-black font-semibold hover:opacity-80 hover:cursor-pointer active:opacity-20 disabled:hover:opacity-90 disabled:cursor-default disabled:opacity-90 shadow shadow-gray-800"
             >
-              Start Game
+              {data.players.length < MIN_PLAYERS
+                ? `Missing ${MIN_PLAYERS - data.players.length} players`
+                : "Start Game!"}
             </button>
           ) : (
             <></>

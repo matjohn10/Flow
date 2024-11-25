@@ -81,6 +81,7 @@ export const TOOLS = [
 
 export const MAX_GUESS = 90 as const;
 export const MAX_DRAW = 300 as const;
+export const MIN_PLAYERS = 4 as const;
 export const MAIN_MOUSE_BUTTON = 0 as const;
 export const CANVAS_COLOR = "#f9fafb" as const;
 export const ROOM_ID_LEN = 5 as const;

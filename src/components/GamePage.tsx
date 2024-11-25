@@ -28,7 +28,7 @@ function GamePage() {
   const params = useParams();
   const navigate = useNavigate();
   const roomId = params.roomId;
-  const { data } = useGame(roomId ?? "");
+  const { data, isRefetching } = useGame(roomId ?? "");
   const { mutateAsync: addEntry, isPending } = useAddEntry();
   const { mutateAsync: addDrawing, isPending: isDrawingPending } =
     useAddDrawing();
@@ -61,7 +61,11 @@ function GamePage() {
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
   const [drawingStack, setDrawingStack] = useState<DrawStep[]>([]);
   const [timer, setTimer] = useState(0);
-  const timerStart = useRef(Date.now());
+  const timerStart = useRef(
+    localStorage.getItem("start")
+      ? Number(localStorage.getItem("start"))
+      : Date.now()
+  );
 
   const [entryCount, setEntryCount] = useState(0);
   const [entry, setEntry] = useState("");
@@ -121,20 +125,8 @@ function GamePage() {
       };
 
       // TIMER
-      const ii = localStorage.getItem("timer");
-      if (!!ii) {
-        console.log("CLEAR OLD TIMER");
-        clearInterval(Number(ii));
-        setTimer(0);
-      }
-      beeping.stop();
-      console.log("START NEW TIMER");
-      const i = setInterval(() => {
-        const diff = (Date.now() - content.time) / 1000;
-        setTimer(Math.floor(diff));
-        if (getRoundTime() - Math.floor(diff) <= 10) beeping.play();
-      }, 1000);
-      localStorage.setItem("timer", i + "");
+      timerStart.current = content.time;
+      localStorage.setItem("start", content.time + "");
 
       if (content.kind === "drawings") {
         setDrawingToGuess(content.content);
@@ -151,6 +143,7 @@ function GamePage() {
       console.log("Emit to leave current game.");
       await query.invalidateQueries({ queryKey: ["game", roomId] });
       socket.emit("player-out", roomId);
+      localStorage.removeItem("start");
       navigate("/game");
     });
 
@@ -179,12 +172,12 @@ function GamePage() {
         clearInterval(Number(currTimer));
         setTimer(0);
       }
-      gameSound.stop();
       beeping.stop();
+      localStorage.removeItem("start");
       if (isCreator()) socket.emit("game-end", roomId);
       navigate(`/game-time/${roomId}/end`);
     }
-  }, [data?.round]);
+  }, [isRefetching]);
 
   useEffect(() => {
     if (ref.current) {
@@ -210,23 +203,24 @@ function GamePage() {
       console.log("REACHED TIME LIMIT");
     }
   }, [timer]);
-  const timerRef = useRef(false);
+
   useEffect(() => {
-    // start music
-    gameSound.play();
-    // TODO: Fix timer issues - should not restart on reload
-    // start timer
-    if (timer === 0 && !timerRef.current) {
-      console.log("INIT TIMER");
-      const i = setInterval(() => {
-        const diff = (Date.now() - timerStart.current) / 1000;
-        setTimer(Math.floor(diff));
-        if (getRoundTime() - Math.floor(diff) <= 10) beeping.play();
-      }, 1000);
-      localStorage.setItem("timer", i + "");
-      timerRef.current = true;
+    // start timer !timerRef.current
+    const ii = localStorage.getItem("timer");
+    if (!!ii) {
+      console.log("CLEAR OLD TIMER");
+      clearInterval(Number(ii));
+      setTimer(0);
     }
-  }, []);
+    console.log("INIT TIMER");
+    localStorage.setItem("start", timerStart.current + "");
+    const i = setInterval(() => {
+      const diff = (Date.now() - timerStart.current) / 1000;
+      setTimer(Math.floor(diff));
+      if (getRoundTime() - Math.floor(diff) <= 10) beeping.play();
+    }, 1000);
+    localStorage.setItem("timer", i + "");
+  }, [timerStart.current]);
 
   return (
     <div
@@ -242,6 +236,7 @@ function GamePage() {
           socket.emit("player-out", roomId);
           gameSound.stop();
           clearIntervals();
+          localStorage.removeItem("start");
           navigate("/");
         }}
       />

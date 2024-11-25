@@ -5,10 +5,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
+        accent: "#b9466c",
         "accent-light": "#cd5a80",
         "accent-50": "#b9466c7d",
         "accent-25": "#b9466c4B",

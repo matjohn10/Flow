@@ -40,7 +40,7 @@ function Alert({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{cancel ?? "Cancel"}</AlertDialogCancel>
-          <AlertDialogAction onClick={action} className="bg-red">
+          <AlertDialogAction onClick={action} className="bg-accent">
             {accept ?? "Continue"}
           </AlertDialogAction>
         </AlertDialogFooter>

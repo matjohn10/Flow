@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useCheckGame, useFullGame, useGameTest } from "../queries/games";
+import { useCheckGame, useFullGame } from "../queries/games";
 import { socket } from "../utils/socket";
 import {
   FindRankOfPlayer,
@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { ShowingContent } from "../utils/types";
 import { isMobile } from "react-device-detect";
 import { ArrowBigLeft } from "lucide-react";
-import { buttonPress, gamePress } from "../utils/sounds";
+import { gamePress } from "../utils/sounds";
 import { useQueryClient } from "@tanstack/react-query";
 import Alert from "./Alert";
 
@@ -22,7 +22,6 @@ function GameEnd() {
   const roomId = params.roomId;
 
   const { data, isLoading } = useFullGame(roomId ?? "");
-  //const { data, isLoading } = useGameTest();
   const [active, setActive] = useState(false);
   const { data: isGame } = useCheckGame(
     roomId ?? "",
@@ -67,11 +66,12 @@ function GameEnd() {
   }, [data]);
 
   useEffect(() => {
+    localStorage.removeItem("start");
     setTimeout(() => {
       setPlayersReady(true);
     }, 1500);
   }, []);
-  console.log(data);
+
   function isCreator(): boolean {
     return data?.creator === (localStorage.getItem("user-id") ?? "-1");
   }
