@@ -109,8 +109,7 @@ export function drawStep(
   step: DrawStep,
   ref: React.RefObject<HTMLCanvasElement>,
   strokeWidth: number,
-  color: string,
-  delta?: boolean
+  color: string
 ) {
   if (!ctx || !ref.current) return;
   setLineProperties(ctx, strokeWidth, color);
