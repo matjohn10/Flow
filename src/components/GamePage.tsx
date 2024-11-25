@@ -8,6 +8,7 @@ import {
 } from "../queries/games";
 import { useEffect, useRef, useState } from "react";
 import {
+  clearIntervals,
   displayTime,
   FindRankOfPlayer,
   isDrawingRound,
@@ -20,6 +21,7 @@ import { isMobile } from "react-device-detect";
 import { MAX_DRAW, MAX_GUESS } from "../constants";
 import { beeping, gamePress, gameSound } from "../utils/sounds";
 import { ArrowBigLeft } from "lucide-react";
+import Alert from "./Alert";
 
 function GamePage() {
   const query = useQueryClient();
@@ -212,6 +214,7 @@ function GamePage() {
   useEffect(() => {
     // start music
     gameSound.play();
+    // TODO: Fix timer issues - should not restart on reload
     // start timer
     if (timer === 0 && !timerRef.current) {
       console.log("INIT TIMER");
@@ -230,16 +233,18 @@ function GamePage() {
       style={{ position: "fixed" }}
       className="relative flex flex-col w-full h-full overflow-hidden overflow-x-hidden"
     >
-      <div
-        className="absolute w-10 h-10 top-12 left-10 hover:cursor-pointer"
-        onClick={() => {
-          // TODO: add warning before leaving game for all (will delete whole game - unplayable)
+      <Alert
+        className="absolute w-10 h-10 top-12 left-10"
+        title="Are you sure?"
+        text="Quiting will delete the game for everyone."
+        trigger={<ArrowBigLeft color="white" className="w-12 h-10" />}
+        action={() => {
           socket.emit("player-out", roomId);
+          gameSound.stop();
+          clearIntervals();
           navigate("/");
         }}
-      >
-        <ArrowBigLeft color="white" className="w-12 h-10" />
-      </div>
+      />
       {isMobile && innerWidth > 500 ? (
         <div className="w-full h-full flex justify-center items-center text-4xl font-bold">
           Cannot use landscape mode.

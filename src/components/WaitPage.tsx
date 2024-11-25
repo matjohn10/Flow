@@ -72,7 +72,6 @@ function WaitPage() {
   return (
     <div className="relative flex flex-col w-full h-full items-center p-20 gap-3 overflow-hidden">
       <div
-        // TODO: add warning before leaving game for creator (will delete whole game)
         className="absolute w-10 h-10 left-10 hover:cursor-pointer"
         onClick={() => {
           socket.emit("player-out", roomId);

@@ -13,6 +13,7 @@ import { isMobile } from "react-device-detect";
 import { ArrowBigLeft } from "lucide-react";
 import { buttonPress, gamePress } from "../utils/sounds";
 import { useQueryClient } from "@tanstack/react-query";
+import Alert from "./Alert";
 
 function GameEnd() {
   const query = useQueryClient();
@@ -117,17 +118,16 @@ function GameEnd() {
 
   return (
     <div className="relative flex flex-col w-full h-full items-center p-20 gap-3 overflow-hidden">
-      <div
-        className="absolute w-10 h-10 left-10 hover:cursor-pointer"
-        onClick={() => {
-          // TODO: add warning before leaving, breaks game
+      <Alert
+        className="absolute w-10 h-10 top-12 left-10"
+        title="Are you sure?"
+        text="Quiting will delete the game for everyone."
+        trigger={<ArrowBigLeft color="white" className="w-12 h-10" />}
+        action={() => {
           socket.emit("player-out", roomId);
-          buttonPress.play();
           navigate("/");
         }}
-      >
-        <ArrowBigLeft color="white" className="w-12 h-10" />
-      </div>
+      />
       <h1 className="text-3xl sm:text-6xl font-bold">Game Room ({roomId})</h1>
       <div className="flex flex-col md:flex-row w-full md:w-2/3 min-w-[350px] md:min-w-[725px] h-full border-2 border-gray-900 rounded-lg">
         <div className="flex flex-wrap bg-dark justify-center md:justify-start md:flex-col gap-2 p-4 w-full md:w-1/4 md:border-r-2 md:border-gray-50">

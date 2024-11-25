@@ -205,3 +205,10 @@ export function checkString(str: string): boolean {
 
   return spaceCount !== str.length;
 }
+
+export function clearIntervals() {
+  const currTimer = localStorage.getItem("timer");
+  if (!!currTimer) {
+    clearInterval(Number(currTimer));
+  }
+}
