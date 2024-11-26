@@ -260,7 +260,7 @@ function DrawingBoard({
   }
 
   return (
-    <div className="relative flex flex-col md:flex-row justify-center items-center w-full h-2/3 gap-8">
+    <div className="relative flex flex-col md:flex-row justify-center items-center w-full h-1/2 sm:h-2/3 gap-2 md:gap-8">
       <ColorsBoard currColor={color} setColor={setColor} />
       {drawingToGuess ? (
         <div style={{ width, height }} className="bg-gray-50 rounded">

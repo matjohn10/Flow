@@ -71,6 +71,8 @@ function GamePage() {
   const [entry, setEntry] = useState("");
   const [entrySent, setEntrySent] = useState(false);
   const [drawingToGuess, setDrawingToGuess] = useState<string | null>(null);
+
+  // TODO If drawing empty, or guess empty -> send random word/drawing (store them in constant)
   const handleEntrySubmit = async () => {
     if (!data) return;
     await addEntry({
@@ -144,6 +146,7 @@ function GamePage() {
       await query.invalidateQueries({ queryKey: ["game", roomId] });
       socket.emit("player-out", roomId);
       localStorage.removeItem("start");
+      clearIntervals();
       navigate("/game");
     });
 
@@ -228,7 +231,7 @@ function GamePage() {
       className="relative flex flex-col w-full h-full overflow-hidden overflow-x-hidden"
     >
       <Alert
-        className="absolute w-10 h-10 top-12 left-10"
+        className="absolute w-10 h-10 top-28 sm:top-12 left-10"
         title="Are you sure?"
         text="Quiting will delete the game for everyone."
         trigger={<ArrowBigLeft color="white" className="w-12 h-10" />}
@@ -246,7 +249,7 @@ function GamePage() {
         </div>
       ) : (
         <div className="flex flex-col w-full h-full items-center justify-center gap-2">
-          <div className="flex flex-col sm:flex-row w-full justify-center items-center gap-4 mb-6 lg:mb-0 px-4">
+          <div className="flex flex-col sm:flex-row w-full justify-center items-center pt-4 gap-1 md:gap-4 px-4">
             <h1 className="font-semibold text-4xl">Round {data?.round ?? 0}</h1>
             <h2 className="hidden lg:block font-semibold text-xl">
               ({entryCount}/{data?.players.length ?? 0} players)
