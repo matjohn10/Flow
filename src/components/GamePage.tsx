@@ -13,12 +13,13 @@ import {
   FindRankOfPlayer,
   isDrawingRound,
   ratioCanvas,
+  selectRandomEntry,
 } from "../utils/helpers";
 import { socket } from "../utils/socket";
 import DrawingBoard from "./DrawingBoard";
 import { DrawStep } from "../utils/types";
 import { isMobile } from "react-device-detect";
-import { MAX_DRAW, MAX_GUESS } from "../constants";
+import { MAX_DRAW, MAX_GUESS, NO_DRAWING } from "../constants";
 import { beeping, gamePress, gameSound } from "../utils/sounds";
 import { ArrowBigLeft } from "lucide-react";
 import Alert from "./Alert";
@@ -76,7 +77,7 @@ function GamePage() {
   const handleEntrySubmit = async () => {
     if (!data) return;
     await addEntry({
-      entry,
+      entry: !entry.trim() ? selectRandomEntry() : entry.trim(),
       rank: FindRankOfPlayer(
         data.players,
         localStorage.getItem("user-id") ?? "-1"
@@ -91,7 +92,8 @@ function GamePage() {
   };
   const handleDrawingSubmit = async () => {
     if (!data || !ref.current) return;
-    const imgUrl = ref.current.toDataURL();
+    const imgUrl =
+      drawingStack.length === 0 ? NO_DRAWING : ref.current.toDataURL();
     await addDrawing({
       drawing: imgUrl,
       rank: FindRankOfPlayer(

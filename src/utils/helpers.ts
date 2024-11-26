@@ -1,4 +1,4 @@
-import { BAD_ASCII } from "../constants";
+import { BAD_ASCII, RANDOM_GUESSES } from "../constants";
 import { Player } from "../queries/games";
 import { DrawStep } from "./types";
 
@@ -210,4 +210,8 @@ export function clearIntervals() {
   if (!!currTimer) {
     clearInterval(Number(currTimer));
   }
+}
+
+export function selectRandomEntry() {
+  return RANDOM_GUESSES[randomNumber(0, RANDOM_GUESSES.length - 1)];
 }
