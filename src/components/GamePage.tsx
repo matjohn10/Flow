@@ -73,7 +73,7 @@ function GamePage() {
   const [entrySent, setEntrySent] = useState(false);
   const [drawingToGuess, setDrawingToGuess] = useState<string | null>(null);
 
-  // TODO If drawing empty, or guess empty -> send random word/drawing (store them in constant)
+  // If drawing empty, or guess empty -> send random word/drawing (store them in constant)
   const handleEntrySubmit = async () => {
     if (!data) return;
     await addEntry({

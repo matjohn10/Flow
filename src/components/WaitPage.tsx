@@ -102,8 +102,7 @@ function WaitPage() {
           {isCreator() ? (
             <button
               onClick={handleStartGame}
-              //TODO: Re-enable disabling of button
-              //disabled={(data?.players.length ?? 0) < MIN_PLAYERS}
+              disabled={(data?.players.length ?? 0) < MIN_PLAYERS}
               className="bg-gray-50 rounded mt-4 px-4 py-2 flex items-center justify-center text-black font-semibold hover:opacity-80 hover:cursor-pointer active:opacity-20 disabled:hover:opacity-90 disabled:cursor-default disabled:opacity-90 shadow shadow-gray-800"
             >
               {data.players.length < MIN_PLAYERS

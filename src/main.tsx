@@ -11,7 +11,6 @@ import GamePage from "./components/GamePage.tsx";
 import GameEnd from "./components/GameEnd.tsx";
 
 // TODO: Play test
-// TODO: End game sound continues (should stop)
 const router = createBrowserRouter([
   {
     path: "/",
